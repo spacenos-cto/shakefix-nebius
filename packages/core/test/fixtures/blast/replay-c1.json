@@ -1,0 +1,13 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261012_c1c1c1",
+  "trigger": "shake",
+  "note": "With VoiceOver on, the refill control is not announced and I cannot reach it with the keyboard.",
+  "startRoute": "/rx/rx_2",
+  "actions": [
+    { "t": 700, "type": "click", "testid": "refill-btn", "selector": "[data-testid=refill-btn]", "route": "/rx/rx_2" }
+  ],
+  "expectation": null,
+  "console": [],
+  "network": []
+}

@@ -1,0 +1,57 @@
+{
+  "bills": [
+    {
+      "id": 3,
+      "title": "Goa trip groceries",
+      "total": 1200,
+      "currency": "INR",
+      "tipPct": 0,
+      "people": ["Asha", "Ben", "Chen", "Dev"],
+      "settled": false,
+      "paid": [],
+      "createdAt": "2026-10-08T09:15:00.000Z",
+      "updatedAt": "2026-10-08T09:15:00.000Z"
+    },
+    {
+      "id": 7,
+      "title": "Dinner at Toit",
+      "total": 1000,
+      "currency": "INR",
+      "tipPct": 0,
+      "people": ["Asha", "Ben", "Chen"],
+      "settled": false,
+      "paid": [],
+      "createdAt": "2026-10-10T20:30:00.000Z",
+      "updatedAt": "2026-10-10T20:30:00.000Z"
+    },
+    {
+      "id": 9,
+      "title": "Team lunch",
+      "total": 499.95,
+      "currency": "INR",
+      "tipPct": 10,
+      "people": ["Asha", "Dev"],
+      "settled": false,
+      "paid": [],
+      "createdAt": "2026-10-09T13:05:00.000Z",
+      "updatedAt": "2026-10-09T13:05:00.000Z"
+    },
+    {
+      "id": 12,
+      "title": "NYC airport cab",
+      "total": 120,
+      "currency": "USD",
+      "tipPct": 15,
+      "people": ["Asha", "Ben", "Chen"],
+      "settled": false,
+      "paid": [],
+      "createdAt": "2026-10-07T18:45:00.000Z",
+      "updatedAt": "2026-10-07T18:45:00.000Z"
+    }
+  ],
+  "session": {
+    "user": "Asha",
+    "issuedAt": "2026-10-10T12:00:00.000Z",
+    "ttlHours": 24
+  }
+}

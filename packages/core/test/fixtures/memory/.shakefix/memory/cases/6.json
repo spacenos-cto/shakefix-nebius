@@ -1,0 +1,52 @@
+{
+  "schema": "shakefix.case/v1",
+  "iid": 6,
+  "rids": [
+    "r_20260921_c3e6a0"
+  ],
+  "route": "/bill/:id",
+  "testids": [
+    "bill-row-12",
+    "currency-select",
+    "bill-total"
+  ],
+  "symptom": {
+    "note": "USD bill header still shows the rupee sign",
+    "expectation": "bill-total shows $120.00",
+    "console_error": null
+  },
+  "root_cause": {
+    "file": "apps/splitpal/src/lib/currency.js",
+    "line": 25,
+    "summary": "formatHeaderTotal looks up the symbol with the wrong key, so every header total renders in rupees",
+    "pattern": "currency-format"
+  },
+  "fix": {
+    "files": [
+      "apps/splitpal/src/lib/currency.js"
+    ],
+    "lines_changed": 6,
+    "mr": 7,
+    "attempts": 1
+  },
+  "second_opinion": {
+    "intended": 2,
+    "unintended": 0,
+    "blocked_changes": []
+  },
+  "reporter_verdicts": {
+    "confirmed": 1,
+    "rejected": 0
+  },
+  "seen_before": null,
+  "lessons_applied": [],
+  "proposed_lessons": [],
+  "time_to_fix_s": 145,
+  "timestamps": {
+    "reported_at": "2026-09-21T09:00:00Z",
+    "operated_at": "2026-09-21T09:02:25Z",
+    "merged_at": "2026-09-21T09:06:00Z",
+    "deployed_at": "2026-09-21T09:09:00Z",
+    "updated_at": "2026-09-21T09:09:00Z"
+  }
+}

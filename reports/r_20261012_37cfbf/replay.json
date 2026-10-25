@@ -1,0 +1,45 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261012_37cfbf",
+  "app": {
+    "name": "carerx",
+    "version": "5718c582",
+    "baseUrl": "https://carerx-pzd4uebegq-uc.a.run.app"
+  },
+  "device": {
+    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+    "viewport": [
+      390,
+      844
+    ],
+    "touch": true
+  },
+  "trigger": "bubble",
+  "note": "I turned off sharing my health data, it said Saved, but when I came back it was on again.",
+  "startRoute": "/settings",
+  "actions": [
+    {
+      "t": 0,
+      "type": "change",
+      "testid": "privacy-share-toggle",
+      "selector": "[data-testid=\"privacy-share-toggle\"]",
+      "route": "/settings"
+    },
+    {
+      "t": 1134,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/settings"
+    }
+  ],
+  "expectation": null,
+  "console": [],
+  "network": [
+    {
+      "method": "GET",
+      "path": "/api/me",
+      "status": 200,
+      "ms": 312
+    }
+  ]
+}

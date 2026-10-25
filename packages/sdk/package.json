@@ -1,0 +1,28 @@
+{
+  "name": "shakefix-sdk",
+  "version": "0.1.0",
+  "description": "Shake-to-report SDK: shake detection, action recorder, console/network capture and replay.json builder for ShakeFix.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.js",
+  "browser": "./dist/shakefix-sdk.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./dist/shakefix-sdk.js": "./dist/shakefix-sdk.js",
+    "./src/*": "./src/*"
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "vitest run",
+    "lint": "node --check build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.0",
+    "jsdom": "25.0.1",
+    "vitest": "2.1.4"
+  }
+}

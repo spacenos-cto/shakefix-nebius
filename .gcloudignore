@@ -1,0 +1,19 @@
+# Files Cloud Build does not need (gcloud builds submit . uploads the repo root).
+.git
+.gitignore
+node_modules/
+**/node_modules/
+.pnpm-store/
+**/dist/
+playwright-report/
+test-results/
+/proof/
+/public/
+coverage/
+reports/
+docs/
+infra/.terraform/
+*.tfstate*
+.gcp.json
+.ci_token
+*.log

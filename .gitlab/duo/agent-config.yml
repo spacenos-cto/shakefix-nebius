@@ -1,0 +1,49 @@
+# Duo Agent Platform: how ShakeFix flows execute in CI/CD.
+# Read ONLY from the default branch. Keys verified against
+# docs.gitlab.com/user/duo_agent_platform/flows/execution/agent-config-yaml/ (2026-10-10):
+#   image, setup_script, network_policy{allowed_domains, denied_domains,
+#   include_recommended_allowed, allow_all_unix_sockets}, cache{paths, key{files, prefix}}, id_tokens.
+#
+# image: left unset on purpose. The default image (workflow-generic-image, UBI 9, Node.js 20)
+# ships SRT, so the execution sandbox and network_policy below are enforced. A custom image
+# without SRT (for example mcr.microsoft.com/playwright:v1.48.2-jammy) would make Playwright
+# trivial but would run WITHOUT the sandbox. See docs/limits.md (spike S2).
+#
+# setup_script runs BEFORE the sandbox is applied, with network access and with the
+# triggering user's tokens in the environment. Keep it to installs only.
+setup_script:
+  # The default Duo image has Node.js but no corepack, so install pnpm with npm (user prefix, no root needed).
+  - node --version && npm --version
+  - npm config set prefix "$HOME/.npm-global" && export PATH="$HOME/.npm-global/bin:$PATH"
+  - command -v pnpm >/dev/null || npm install -g pnpm@9.12.0
+  - pnpm --version
+  - pnpm config set store-dir .pnpm-store
+  - pnpm install --frozen-lockfile
+  - pnpm --filter carerx build
+  # Browsers are cached inside the workspace so the cache below can keep them.
+  - mkdir -p .cache/ms-playwright "$HOME/.cache"
+  - ln -sfn "$PWD/.cache/ms-playwright" "$HOME/.cache/ms-playwright"
+  - npx playwright install chromium
+  # UBI 9 has no apt, so --with-deps cannot work. Best effort for Chromium runtime libraries.
+  # Chromium runtime libraries (UBI 9: dnf or microdnf, whichever the image ships).
+  - PKGS="nss atk at-spi2-atk cups-libs libdrm libxkbcommon libXcomposite libXdamage libXrandr mesa-libgbm pango alsa-lib libXext libXfixes"; (command -v dnf >/dev/null && dnf install -y -q $PKGS) || (command -v microdnf >/dev/null && microdnf install -y $PKGS) || echo "chromium system deps not installed; see docs/limits.md"
+  - (node -e "require('playwright')" 2>/dev/null && npx playwright --version) || true
+  - mkdir -p .shakefix/tmp
+
+cache:
+  key:
+    files:
+      - pnpm-lock.yaml
+    prefix: shakefix-duo
+  paths:
+    - .pnpm-store/
+    - node_modules/
+    - .cache/ms-playwright/
+
+network_policy:
+  include_recommended_allowed: true # npm registry, nodejs.org, etc.
+  allowed_domains:
+    - playwright.azureedge.net
+    - playwright.download.prss.microsoft.com
+    - cdn.playwright.dev
+    - carerx-pzd4uebegq-uc.a.run.app # read-only GET /api/insights/affected for Blast Radius

@@ -1,0 +1,10 @@
+{
+  "name": "orders-empty",
+  "tags": [],
+  "startRoute": "/orders",
+  "actions": [],
+  "expectation": {
+    "testid": "no-orders",
+    "state": "visible"
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "schema": "shakefix.memory-index/v1",
+  "generated_at": "2026-09-21T09:09:00Z",
+  "cases": [
+    {
+      "iid": 4,
+      "rids": [
+        "r_20261011_b1d3e0"
+      ],
+      "route": "/bill/:id/settle",
+      "testids": [
+        "bill-row-7",
+        "settle-btn",
+        "pay-Asha-btn",
+        "pay-Ben-btn",
+        "pay-Chen-btn",
+        "confirm-settle-btn",
+        "settled-banner"
+      ],
+      "symptom": "settle button does nothing",
+      "console_error": null,
+      "file": "apps/splitpal/src/lib/split.js",
+      "line": 17,
+      "summary": "splitEvenly truncates each share, so 1000/3 pays 999.99 and isFullySettled never sees the full total (remainder cent dropped)",
+      "pattern": "money-rounding",
+      "files": [
+        "apps/splitpal/src/lib/split.js"
+      ],
+      "mr": 5,
+      "attempts": 2,
+      "lines_changed": 14,
+      "second_opinion": {
+        "intended": 1,
+        "unintended": 0,
+        "blocked": 1
+      },
+      "verdicts": {
+        "confirmed": 1,
+        "rejected": 0
+      },
+      "time_to_fix_s": 312,
+      "seen_before": null,
+      "lessons": [
+        "L1"
+      ],
+      "lessons_applied": [],
+      "reported_at": "2026-09-20T10:00:00Z",
+      "fixed_at": "2026-09-20T10:09:00Z"
+    },
+    {
+      "iid": 6,
+      "rids": [
+        "r_20260921_c3e6a0"
+      ],
+      "route": "/bill/:id",
+      "testids": [
+        "bill-row-12",
+        "currency-select",
+        "bill-total"
+      ],
+      "symptom": "USD bill header still shows the rupee sign",
+      "console_error": null,
+      "file": "apps/splitpal/src/lib/currency.js",
+      "line": 25,
+      "summary": "formatHeaderTotal looks up the symbol with the wrong key, so every header total renders in rupees",
+      "pattern": "currency-format",
+      "files": [
+        "apps/splitpal/src/lib/currency.js"
+      ],
+      "mr": 7,
+      "attempts": 1,
+      "lines_changed": 6,
+      "second_opinion": {
+        "intended": 2,
+        "unintended": 0,
+        "blocked": 0
+      },
+      "verdicts": {
+        "confirmed": 1,
+        "rejected": 0
+      },
+      "time_to_fix_s": 145,
+      "seen_before": null,
+      "lessons": [
+        "L2"
+      ],
+      "lessons_applied": [],
+      "reported_at": "2026-09-21T09:00:00Z",
+      "fixed_at": "2026-09-21T09:06:00Z"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "L1",
+      "source": "second-opinion-block",
+      "case": 4,
+      "text": "Never change roundMoney in money.js: it is shared with tip.js; a Math.round change altered tip totals on other bills.",
+      "files": [
+        "apps/splitpal/src/lib/money.js",
+        "apps/splitpal/src/lib/tip.js"
+      ],
+      "patterns": [
+        "money-rounding"
+      ],
+      "added": "2026-09-20T10:03:00Z"
+    },
+    {
+      "id": "L2",
+      "source": "attending-concern",
+      "case": 6,
+      "text": "Always format money with Intl.NumberFormat and the bill's currency code; never hard-code or look up a currency symbol by hand.",
+      "files": [
+        "apps/splitpal/src/lib/currency.js"
+      ],
+      "patterns": [
+        "currency-format"
+      ],
+      "added": "2026-09-21T09:06:00Z"
+    }
+  ],
+  "hotspots": [
+    {
+      "kind": "file",
+      "file": "apps/splitpal/src/lib/currency.js",
+      "count": 1,
+      "last_iid": 6
+    },
+    {
+      "kind": "route",
+      "route": "/bill/:id",
+      "count": 1,
+      "last_iid": 6
+    },
+    {
+      "kind": "file",
+      "file": "apps/splitpal/src/lib/split.js",
+      "count": 1,
+      "last_iid": 4
+    },
+    {
+      "kind": "route",
+      "route": "/bill/:id/settle",
+      "count": 1,
+      "last_iid": 4
+    }
+  ],
+  "stats": {
+    "cases": 2,
+    "lessons": 2,
+    "repeat_cases": 0,
+    "repeat_bug_median_time_s": null,
+    "first_time_median_s": 228.5,
+    "speedup": null,
+    "lessons_applied": 0,
+    "blocked_side_effects": 1
+  }
+}

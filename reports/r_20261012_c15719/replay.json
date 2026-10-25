@@ -1,0 +1,31 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261012_c15719",
+  "app": {
+    "name": "carerx",
+    "version": "e836bf8c",
+    "baseUrl": "https://carerx-pzd4uebegq-uc.a.run.app"
+  },
+  "device": {
+    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+    "viewport": [
+      390,
+      844
+    ],
+    "touch": true
+  },
+  "trigger": "bubble",
+  "note": "My mother uses a screen reader. On the refill screen it reads nothing for the refill button and she can't reorder her heart medicine.",
+  "startRoute": "/rx/1",
+  "actions": [],
+  "expectation": null,
+  "console": [],
+  "network": [
+    {
+      "method": "GET",
+      "path": "/api/prescriptions/1",
+      "status": 200,
+      "ms": 364
+    }
+  ]
+}

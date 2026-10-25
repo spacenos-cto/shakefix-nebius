@@ -1,0 +1,65 @@
+{
+  "schema": "shakefix.case/v1",
+  "iid": 6,
+  "rids": [
+    "r_20261010_498c49"
+  ],
+  "route": "/bill/:id",
+  "testids": [
+    "title-input",
+    "total-input",
+    "person-input-0",
+    "add-person-btn",
+    "save-bill-btn",
+    "bill-total"
+  ],
+  "symptom": {
+    "note": "Saved a bill with an empty second name and the bill page crashed.",
+    "expectation": "bill-total visible",
+    "console_error": "Unhandled rejection: Cannot read properties of undefined (reading 'toUpperCase')"
+  },
+  "root_cause": {
+    "file": "apps/splitpal/src/views/bill.js",
+    "line": 11,
+    "summary": "initials() called toUpperCase on undefined for a blank person name, crashing the bill view.",
+    "pattern": "blank-name-first-char"
+  },
+  "fix": {
+    "files": [
+      "apps/splitpal/src/views/bill.js"
+    ],
+    "lines_changed": 6,
+    "mr": 3,
+    "attempts": 2
+  },
+  "second_opinion": {
+    "intended": 17,
+    "unintended": 0,
+    "blocked_changes": []
+  },
+  "reporter_verdicts": {
+    "confirmed": 0,
+    "rejected": 0
+  },
+  "seen_before": 5,
+  "lessons_applied": [
+    "L1"
+  ],
+  "proposed_lessons": [
+    {
+      "source": "reoperation",
+      "text": "Never edit tip.js, money.js or split.js to fix a bill.js view crash: the fix stays in views/bill.js, and /bill/9 tip-total diffs from the change-tip flow are mid-flow timing (5% vs 10% snapshot), not fix side effects.",
+      "files": [
+        "apps/splitpal/src/views/bill.js"
+      ]
+    }
+  ],
+  "time_to_fix_s": 1439,
+  "timestamps": {
+    "reported_at": "2026-10-10T20:33:28.284Z",
+    "operated_at": "2026-10-10T20:57:27.011Z",
+    "merged_at": "2026-10-10T23:15:11.286Z",
+    "deployed_at": "2026-10-10T23:20:23.495Z",
+    "updated_at": "2026-10-10T23:20:23.495Z"
+  }
+}

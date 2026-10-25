@@ -1,0 +1,566 @@
+{
+  "schema": "shakefix.memory-index/v1",
+  "generated_at": "2026-10-23T06:11:25.207Z",
+  "cases": [
+    {
+      "iid": 4,
+      "rids": [
+        "r_20261011_b1d3e0"
+      ],
+      "route": "/bill/:id/settle",
+      "testids": [
+        "bill-row-7",
+        "settle-btn",
+        "pay-Asha-btn",
+        "pay-Ben-btn",
+        "pay-Chen-btn",
+        "confirm-settle-btn",
+        "settled-banner"
+      ],
+      "symptom": "settle button does nothing",
+      "console_error": null,
+      "file": "apps/splitpal/src/lib/split.js",
+      "line": 17,
+      "summary": "splitEvenly truncates each share, so 1000/3 pays 999.99 and isFullySettled never sees the full total (remainder cent dropped)",
+      "pattern": "money-rounding",
+      "files": [
+        "apps/splitpal/src/lib/split.js"
+      ],
+      "mr": 1,
+      "attempts": 1,
+      "lines_changed": 14,
+      "second_opinion": {
+        "intended": null,
+        "unintended": null,
+        "blocked": 1
+      },
+      "verdicts": {
+        "confirmed": 0,
+        "rejected": 0
+      },
+      "time_to_fix_s": 447,
+      "seen_before": null,
+      "lessons": [
+        "L1"
+      ],
+      "lessons_applied": [],
+      "reported_at": "2026-10-10T08:39:55Z",
+      "fixed_at": "2026-10-10T08:47:22Z"
+    },
+    {
+      "iid": 5,
+      "rids": [
+        "r_20261010_7c07ec"
+      ],
+      "route": "/bill/:id",
+      "testids": [
+        "bill-row-3",
+        "currency-select",
+        "bill-total"
+      ],
+      "symptom": "switched to USD but total still shows rupees",
+      "console_error": null,
+      "file": null,
+      "line": null,
+      "summary": null,
+      "pattern": null,
+      "files": [],
+      "mr": null,
+      "attempts": null,
+      "lines_changed": null,
+      "second_opinion": {
+        "intended": null,
+        "unintended": null,
+        "blocked": 0
+      },
+      "verdicts": {
+        "confirmed": 0,
+        "rejected": 0
+      },
+      "time_to_fix_s": 10652,
+      "seen_before": null,
+      "lessons": [],
+      "lessons_applied": [],
+      "reported_at": "2026-10-10T17:33:48.142Z",
+      "fixed_at": "2026-10-10T20:31:19.736Z"
+    },
+    {
+      "iid": 6,
+      "rids": [
+        "r_20261010_498c49"
+      ],
+      "route": "/bill/:id",
+      "testids": [
+        "title-input",
+        "total-input",
+        "person-input-0",
+        "add-person-btn",
+        "save-bill-btn",
+        "bill-total"
+      ],
+      "symptom": "Saved a bill with an empty second name and the bill page crashed.",
+      "console_error": "Unhandled rejection: Cannot read properties of undefined (reading 'toUpperCase')",
+      "file": "apps/splitpal/src/views/bill.js",
+      "line": 11,
+      "summary": "initials() called toUpperCase on undefined for a blank person name, crashing the bill view.",
+      "pattern": "blank-name-first-char",
+      "files": [
+        "apps/splitpal/src/views/bill.js"
+      ],
+      "mr": 3,
+      "attempts": 2,
+      "lines_changed": 6,
+      "second_opinion": {
+        "intended": 17,
+        "unintended": 0,
+        "blocked": 0
+      },
+      "verdicts": {
+        "confirmed": 0,
+        "rejected": 0
+      },
+      "time_to_fix_s": 1439,
+      "seen_before": 5,
+      "lessons": [
+        "L2"
+      ],
+      "lessons_applied": [
+        "L1"
+      ],
+      "reported_at": "2026-10-10T20:33:28.284Z",
+      "fixed_at": "2026-10-10T23:15:11.286Z"
+    },
+    {
+      "iid": 11,
+      "rids": [
+        "r_20261011_5929c3"
+      ],
+      "route": "/settings",
+      "testids": [
+        "settings-name-input",
+        "settings-link"
+      ],
+      "symptom": "Typed my name in Settings, went back, and the name was gone.",
+      "console_error": null,
+      "file": "apps/splitpal/src/views/settings.js",
+      "line": 33,
+      "summary": "onchange saved the name under the misspelt key 'nmae', so the name was never persisted.",
+      "pattern": "misspelt-prefs-key",
+      "files": [
+        "apps/splitpal/src/views/settings.js"
+      ],
+      "mr": 7,
+      "attempts": 1,
+      "lines_changed": 2,
+      "second_opinion": {
+        "intended": 1,
+        "unintended": 0,
+        "blocked": 0
+      },
+      "verdicts": {
+        "confirmed": 0,
+        "rejected": 0
+      },
+      "time_to_fix_s": 133,
+      "seen_before": null,
+      "lessons": [],
+      "lessons_applied": [],
+      "reported_at": "2026-10-11T13:35:58.199Z",
+      "fixed_at": "2026-10-11T16:49:50.204Z"
+    },
+    {
+      "iid": 13,
+      "rids": [
+        "r_20261011_9aa746"
+      ],
+      "route": "/bill/:id",
+      "testids": [],
+      "symptom": "There is no 20% tip option, it stops at 15%.",
+      "console_error": null,
+      "file": "apps/splitpal/src/views/bill.js",
+      "line": 26,
+      "summary": "tip-select options were built from TIP_OPTIONS.slice(0, -1), dropping the 20% option.",
+      "pattern": "dropped-last-option",
+      "files": [
+        "apps/splitpal/src/views/bill.js"
+      ],
+      "mr": 9,
+      "attempts": 1,
+      "lines_changed": 2,
+      "second_opinion": {
+        "intended": 0,
+        "unintended": 0,
+        "blocked": 0
+      },
+      "verdicts": {
+        "confirmed": 0,
+        "rejected": 0
+      },
+      "time_to_fix_s": 132,
+      "seen_before": 6,
+      "lessons": [
+        "L2"
+      ],
+      "lessons_applied": [
+        "L1",
+        "L2"
+      ],
+      "reported_at": "2026-10-11T16:49:33.803Z",
+      "fixed_at": "2026-10-11T17:12:06.621Z"
+    },
+    {
+      "iid": 14,
+      "rids": [
+        "r_20261012_3d080f"
+      ],
+      "route": "/orders/:id",
+      "testids": [
+        "refill-btn",
+        "pay-btn"
+      ],
+      "symptom": "I paid my $12 copay for my heart pills once and it charged me $24.",
+      "console_error": null,
+      "file": "apps/carerx/src/views/refill.js",
+      "line": 34,
+      "summary": "the pay button had an onclick that called pay() on top of the form submit handler, so one tap sent two refill requests and charged the copay twice.",
+      "pattern": "double-submit-handler",
+      "files": [
+        "apps/carerx/src/views/refill.js"
+      ],
+      "mr": 12,
+      "attempts": 1,
+      "lines_changed": 3,
+      "second_opinion": {
+        "intended": 53,
+        "unintended": 0,
+        "blocked": 0
+      },
+      "verdicts": {
+        "confirmed": 0,
+        "rejected": 0
+      },
+      "time_to_fix_s": 255,
+      "seen_before": null,
+      "lessons": [
+        "L3"
+      ],
+      "lessons_applied": [],
+      "reported_at": "2026-10-12T08:21:04.381Z",
+      "fixed_at": "2026-10-12T08:34:00.513Z"
+    },
+    {
+      "iid": 15,
+      "rids": [
+        "r_20261012_37cfbf"
+      ],
+      "route": "/settings",
+      "testids": [
+        "privacy-share-toggle"
+      ],
+      "symptom": "I turned off sharing my health data, it said Saved, but when I came back it was on again.",
+      "console_error": null,
+      "file": "apps/carerx/server/index.js",
+      "line": 122,
+      "summary": "PATCH /me/privacy read the misspelt key 'shareHealthdata', so turning sharing off was ignored while the UI said Saved.",
+      "pattern": "misspelt-request-key",
+      "files": [
+        "apps/carerx/server/index.js"
+      ],
+      "mr": 13,
+      "attempts": 1,
+      "lines_changed": 3,
+      "second_opinion": {
+        "intended": 4,
+        "unintended": 0,
+        "blocked": 0
+      },
+      "verdicts": {
+        "confirmed": 0,
+        "rejected": 0
+      },
+      "time_to_fix_s": 166,
+      "seen_before": null,
+      "lessons": [],
+      "lessons_applied": [],
+      "reported_at": "2026-10-12T08:50:12.086Z",
+      "fixed_at": "2026-10-12T09:16:11.006Z"
+    },
+    {
+      "iid": 16,
+      "rids": [
+        "r_20261012_c15719"
+      ],
+      "route": "/rx/:id",
+      "testids": [],
+      "symptom": "My mother uses a screen reader. On the refill screen it reads nothing for the refill button and she can't reorder her heart medicine.",
+      "console_error": null,
+      "file": "apps/carerx/src/views/rx.js",
+      "line": 11,
+      "summary": "the refill control was an unnamed, non-focusable div instead of a labelled button, so screen readers announced nothing.",
+      "pattern": "a11y-unnamed-control",
+      "files": [
+        "apps/carerx/src/views/rx.js",
+        "apps/carerx/src/styles.css"
+      ],
+      "mr": 14,
+      "attempts": 2,
+      "lines_changed": 7,
+      "second_opinion": {
+        "intended": 0,
+        "unintended": 0,
+        "blocked": 0
+      },
+      "verdicts": {
+        "confirmed": 0,
+        "rejected": 0
+      },
+      "time_to_fix_s": 879,
+      "seen_before": null,
+      "lessons": [
+        "L4",
+        "L5"
+      ],
+      "lessons_applied": [],
+      "reported_at": "2026-10-12T09:13:47.895Z",
+      "fixed_at": "2026-10-12T09:35:13.381Z"
+    },
+    {
+      "iid": 17,
+      "rids": [
+        "r_20261012_b0bac0"
+      ],
+      "route": "/rx/:id",
+      "testids": [],
+      "symptom": "My thyroid pill says 50 mg but the bottle says 50 mcg. Which is it?",
+      "console_error": null,
+      "file": "apps/carerx/src/dosing/strength.js",
+      "line": 14,
+      "summary": "formatStrength mapped the mcg unit to mg, so 50 mcg displayed as 50 mg.",
+      "pattern": "unit-display-mismatch",
+      "files": [
+        "apps/carerx/src/dosing/strength.js"
+      ],
+      "mr": 15,
+      "attempts": 1,
+      "lines_changed": 3,
+      "second_opinion": {
+        "intended": 8,
+        "unintended": 0,
+        "blocked": 0
+      },
+      "verdicts": {
+        "confirmed": 0,
+        "rejected": 0
+      },
+      "time_to_fix_s": 171,
+      "seen_before": 16,
+      "lessons": [
+        "L6"
+      ],
+      "lessons_applied": [],
+      "reported_at": "2026-10-12T09:36:06.394Z",
+      "fixed_at": "2026-10-12T10:08:38.167Z"
+    },
+    {
+      "iid": 18,
+      "rids": [
+        "r_20261023_da6e62"
+      ],
+      "route": "/rx/:id",
+      "testids": [
+        "refill-btn",
+        "pay-btn"
+      ],
+      "symptom": "Refills left went UP after I refilled. It said 2, now it says 3.",
+      "console_error": null,
+      "file": "apps/carerx/server/index.js",
+      "line": 155,
+      "summary": "POST /prescriptions/:id/refills incremented refillsLeft instead of decrementing it.",
+      "pattern": "refill-counter-wrong-direction",
+      "files": [
+        "apps/carerx/server/index.js"
+      ],
+      "mr": 26,
+      "attempts": 1,
+      "lines_changed": 4,
+      "second_opinion": {
+        "intended": 4,
+        "unintended": 0,
+        "blocked": 0
+      },
+      "verdicts": {
+        "confirmed": 0,
+        "rejected": 0
+      },
+      "time_to_fix_s": 308,
+      "seen_before": null,
+      "lessons": [],
+      "lessons_applied": [],
+      "reported_at": "2026-10-23T05:52:52.908Z",
+      "fixed_at": "2026-10-23T06:06:30.315Z"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "L1",
+      "source": "second-opinion-block",
+      "case": 4,
+      "text": "Never change roundMoney in money.js: it is shared with tip.js; a Math.round change altered tip totals on other bills.",
+      "files": [
+        "apps/splitpal/src/lib/money.js",
+        "apps/splitpal/src/lib/tip.js"
+      ],
+      "patterns": [
+        "money-rounding"
+      ],
+      "added": "2026-10-10T09:30:00Z"
+    },
+    {
+      "id": "L2",
+      "source": "reoperation",
+      "case": 6,
+      "text": "Never edit tip.js, money.js or split.js to fix a bill.js view crash: the fix stays in views/bill.js, and /bill/9 tip-total diffs from the change-tip flow are mid-flow timing (5% vs 10% snapshot), not fix side effects.",
+      "files": [
+        "apps/splitpal/src/views/bill.js"
+      ],
+      "patterns": [],
+      "added": "2026-10-10T23:20:23.495Z"
+    },
+    {
+      "id": "L3",
+      "source": "attending-concern",
+      "case": 14,
+      "text": "Always make POST /prescriptions/:id/refills idempotent or guard against double submission, because the server will still create a second order and charge if any client sends two requests.",
+      "files": [
+        "apps/carerx/src/views/refill.js"
+      ],
+      "patterns": [],
+      "added": "2026-10-12T08:45:51.765Z"
+    },
+    {
+      "id": "L4",
+      "source": "second-opinion-block",
+      "case": 16,
+      "text": "Never change styles.css, rx.js in a way that alters PATCH /api/me/privacy · $.privacy.shareHealthData: false -> true (+13 more): Second Opinion blocked the first fix for #16 as unintended.",
+      "files": [
+        "apps/carerx/src/styles.css",
+        "apps/carerx/src/views/rx.js"
+      ],
+      "patterns": [],
+      "added": "2026-10-12T09:23:52.467Z"
+    },
+    {
+      "id": "L5",
+      "source": "reoperation",
+      "case": 16,
+      "text": "Never fix #16 by carrying unrelated server changes: the first branch was cut before #15 merged, so Second Opinion saw the privacy fix reverted (PATCH /me/privacy shareHealthData) and /rx/1/refill blank; rebase on main and change only rx.js and styles.css.",
+      "files": [
+        "apps/carerx/src/views/rx.js",
+        "apps/carerx/src/styles.css"
+      ],
+      "patterns": [],
+      "added": "2026-10-12T09:39:48.234Z"
+    },
+    {
+      "id": "L6",
+      "source": "attending-concern",
+      "case": 17,
+      "text": "Always render medication units from the stored unit field and never remap units in dosing display code.",
+      "files": [
+        "apps/carerx/src/dosing/strength.js"
+      ],
+      "patterns": [],
+      "added": "2026-10-12T10:13:58.986Z"
+    }
+  ],
+  "hotspots": [
+    {
+      "kind": "route",
+      "route": "/rx/:id",
+      "count": 3,
+      "last_iid": 18
+    },
+    {
+      "kind": "route",
+      "route": "/bill/:id",
+      "count": 3,
+      "last_iid": 13
+    },
+    {
+      "kind": "file",
+      "file": "apps/carerx/server/index.js",
+      "count": 2,
+      "last_iid": 18
+    },
+    {
+      "kind": "route",
+      "route": "/settings",
+      "count": 2,
+      "last_iid": 15
+    },
+    {
+      "kind": "file",
+      "file": "apps/splitpal/src/views/bill.js",
+      "count": 2,
+      "last_iid": 13
+    },
+    {
+      "kind": "file",
+      "file": "apps/carerx/src/dosing/strength.js",
+      "count": 1,
+      "last_iid": 17
+    },
+    {
+      "kind": "file",
+      "file": "apps/carerx/src/styles.css",
+      "count": 1,
+      "last_iid": 16
+    },
+    {
+      "kind": "file",
+      "file": "apps/carerx/src/views/rx.js",
+      "count": 1,
+      "last_iid": 16
+    },
+    {
+      "kind": "file",
+      "file": "apps/carerx/src/views/refill.js",
+      "count": 1,
+      "last_iid": 14
+    },
+    {
+      "kind": "route",
+      "route": "/orders/:id",
+      "count": 1,
+      "last_iid": 14
+    },
+    {
+      "kind": "file",
+      "file": "apps/splitpal/src/views/settings.js",
+      "count": 1,
+      "last_iid": 11
+    },
+    {
+      "kind": "file",
+      "file": "apps/splitpal/src/lib/split.js",
+      "count": 1,
+      "last_iid": 4
+    },
+    {
+      "kind": "route",
+      "route": "/bill/:id/settle",
+      "count": 1,
+      "last_iid": 4
+    }
+  ],
+  "stats": {
+    "cases": 10,
+    "lessons": 6,
+    "repeat_cases": 3,
+    "repeat_bug_median_time_s": 171,
+    "first_time_median_s": 308,
+    "speedup": 1.8,
+    "lessons_applied": 3,
+    "blocked_side_effects": 1
+  }
+}

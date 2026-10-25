@@ -1,0 +1,62 @@
+{
+  "id": "E10",
+  "kind": "bug",
+  "title": "Unicode name: \"Zoë\" is saved as \"Zo\"",
+  "class": "unicode",
+  "evalBug": "E10",
+  "note": "my friend Zoë's name lost its ë",
+  "steps": {
+    "startRoute": "/",
+    "actions": [
+      {
+        "type": "click",
+        "testid": "new-bill-btn",
+        "selector": "[data-testid=\"new-bill-btn\"]"
+      },
+      {
+        "type": "input",
+        "testid": "title-input",
+        "selector": "[data-testid=\"title-input\"]",
+        "value": "Brunch"
+      },
+      {
+        "type": "input",
+        "testid": "total-input",
+        "selector": "[data-testid=\"total-input\"]",
+        "value": "200"
+      },
+      {
+        "type": "input",
+        "testid": "person-input-0",
+        "selector": "[data-testid=\"person-input-0\"]",
+        "value": "Zoë"
+      },
+      {
+        "type": "click",
+        "testid": "add-person-btn",
+        "selector": "[data-testid=\"add-person-btn\"]"
+      },
+      {
+        "type": "input",
+        "testid": "person-input-1",
+        "selector": "[data-testid=\"person-input-1\"]",
+        "value": "Ben"
+      },
+      {
+        "type": "click",
+        "testid": "save-bill-btn",
+        "selector": "[data-testid=\"save-bill-btn\"]"
+      }
+    ]
+  },
+  "expectation": {
+    "testid": "share-Zoë",
+    "state": "visible"
+  },
+  "fix": {
+    "files": [
+      "apps/splitpal/server/index.js"
+    ]
+  },
+  "gitlab": false
+}

@@ -1,0 +1,50 @@
+{
+  "schema": "shakefix.case/v1",
+  "iid": 15,
+  "rids": [
+    "r_20261012_37cfbf"
+  ],
+  "route": "/settings",
+  "testids": [
+    "privacy-share-toggle"
+  ],
+  "symptom": {
+    "note": "I turned off sharing my health data, it said Saved, but when I came back it was on again.",
+    "expectation": "",
+    "console_error": null
+  },
+  "root_cause": {
+    "file": "apps/carerx/server/index.js",
+    "line": 122,
+    "summary": "PATCH /me/privacy read the misspelt key 'shareHealthdata', so turning sharing off was ignored while the UI said Saved.",
+    "pattern": "misspelt-request-key"
+  },
+  "fix": {
+    "files": [
+      "apps/carerx/server/index.js"
+    ],
+    "lines_changed": 3,
+    "mr": 13,
+    "attempts": 1
+  },
+  "second_opinion": {
+    "intended": 4,
+    "unintended": 0,
+    "blocked_changes": []
+  },
+  "reporter_verdicts": {
+    "confirmed": 0,
+    "rejected": 0
+  },
+  "seen_before": null,
+  "lessons_applied": [],
+  "proposed_lessons": [],
+  "time_to_fix_s": 166,
+  "timestamps": {
+    "reported_at": "2026-10-12T08:50:12.086Z",
+    "operated_at": "2026-10-12T08:52:58.355Z",
+    "merged_at": "2026-10-12T09:16:11.006Z",
+    "deployed_at": "2026-10-12T09:20:43.796Z",
+    "updated_at": "2026-10-12T09:20:43.796Z"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "E8",
+  "kind": "bug",
+  "title": "Currency formatting drops trailing zeros",
+  "class": "currency-format",
+  "evalBug": "E8",
+  "note": "amounts show ₹300 instead of ₹300.00",
+  "steps": {
+    "startRoute": "/",
+    "actions": [
+      {
+        "type": "click",
+        "testid": "bill-row-3",
+        "selector": "[data-testid=\"bill-row-3\"]"
+      }
+    ]
+  },
+  "expectation": {
+    "testid": "share-Asha",
+    "state": "text",
+    "text": "₹300.00"
+  },
+  "fix": {
+    "files": [
+      "apps/splitpal/src/lib/currency.js"
+    ]
+  },
+  "gitlab": false
+}

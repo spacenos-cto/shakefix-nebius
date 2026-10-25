@@ -1,0 +1,106 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261012_3d080f",
+  "app": {
+    "name": "carerx",
+    "version": "ac71ad8e",
+    "baseUrl": "https://carerx-pzd4uebegq-uc.a.run.app"
+  },
+  "device": {
+    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+    "viewport": [
+      390,
+      844
+    ],
+    "touch": true
+  },
+  "trigger": "bubble",
+  "note": "I paid my $12 copay for my heart pills once and it charged me $24.",
+  "startRoute": "/rx/1",
+  "actions": [
+    {
+      "t": 0,
+      "type": "click",
+      "testid": "refill-btn",
+      "selector": "[data-testid=\"refill-btn\"]",
+      "route": "/rx/1"
+    },
+    {
+      "t": 1,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/rx/1/refill"
+    },
+    {
+      "t": 863,
+      "type": "click",
+      "testid": "pay-btn",
+      "selector": "[data-testid=\"pay-btn\"]",
+      "route": "/rx/1/refill"
+    },
+    {
+      "t": 865,
+      "type": "submit",
+      "selector": "#app > form",
+      "route": "/rx/1/refill"
+    },
+    {
+      "t": 1200,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/orders/1001"
+    },
+    {
+      "t": 1201,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/orders/1002"
+    }
+  ],
+  "expectation": null,
+  "console": [],
+  "network": [
+    {
+      "method": "GET",
+      "path": "/api/prescriptions/1",
+      "status": 200,
+      "ms": 303
+    },
+    {
+      "method": "GET",
+      "path": "/api/me",
+      "status": 200,
+      "ms": 315
+    },
+    {
+      "method": "GET",
+      "path": "/api/prescriptions/1",
+      "status": 200,
+      "ms": 317
+    },
+    {
+      "method": "POST",
+      "path": "/api/prescriptions/1/refills",
+      "status": 201,
+      "ms": 336
+    },
+    {
+      "method": "POST",
+      "path": "/api/prescriptions/1/refills",
+      "status": 201,
+      "ms": 334
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders/1002",
+      "status": 200,
+      "ms": 308
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders/1001",
+      "status": 200,
+      "ms": 309
+    }
+  ]
+}

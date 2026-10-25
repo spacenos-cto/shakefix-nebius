@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="ShakeFix for judges: the problem, the 3-minute path, and the evidence for each judging criterion, with signed certificates checked live." />
+    <title>ShakeFix for judges</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23111110'/><path d='M8 16h5l2-6 3 12 2-6h4' stroke='%23ff5a1f' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+  </head>
+  <body class="jd-page">
+    <nav class="jd-nav" aria-label="Site">
+      <a class="jd-logo" href="./judges.html">
+        <svg class="pulse" viewBox="0 0 64 24" aria-hidden="true"><path d="M0 12h16l4-9 6 18 5-14 3 5h30" /></svg>
+        <span>ShakeFix</span>
+      </a>
+      <div class="jd-links">
+        <a href="#path">3-minute path</a>
+        <a href="#criteria">Criteria</a>
+        <a href="#proof">Live proof</a>
+        <a href="#limits">Limits</a>
+        <a href="./try.html">Try it</a>
+        <a href="./index.html">Mission Control</a>
+        <a id="repo-link" href="#">Repository</a>
+      </div>
+    </nav>
+
+    <main class="jd-wrap">
+      <!-- 1. The problem, then the gesture -->
+      <header class="jd-hero">
+        <p class="jd-kicker mono">FOR APPS PEOPLE CAN'T AFFORD TO GET WRONG</p>
+        <h1>One shake fixes it.</h1>
+        <p class="jd-lede">
+          Margaret is 78 and takes five prescriptions. Her pharmacy app charges her $24 for a $12 copay. Reporting
+          that today takes steps to reproduce, a screenshot, an app version and someone who believes her. So she
+          calls her daughter, or she quietly stops using the app.
+        </p>
+        <p class="jd-lede strong">
+          With ShakeFix she shakes her phone. That is the whole bug report. GitLab Duo agents reproduce it, fix it,
+          prove the fix changed only what it should, and ship it. Then her phone asks: “Fixed ✓. Is it working for you now?”
+        </p>
+        <div class="jd-ctas">
+          <a class="jd-btn primary" href="./try.html">Break it yourself →</a>
+          <a class="jd-btn" id="video-link" href="#" hidden>Watch the video</a>
+          <a class="jd-btn" href="#proof">See the signed proof</a>
+        </div>
+      </header>
+
+      <section class="jd-stats" aria-label="The problem in numbers">
+        <div class="jd-stat"><strong class="mono">43%</strong><span>of US adults 65+ take five or more prescription drugs</span><a class="src" href="https://www.cdc.gov/nchs/hus/topics/rx-drug-use.htm">CDC NCHS</a></div>
+        <div class="jd-stat"><strong class="mono">1.5M+</strong><span>US emergency visits a year for adverse drug events</span><a class="src" href="https://www.cdc.gov/medication-safety/data-research/facts-stats/index.html">CDC</a></div>
+        <div class="jd-stat"><strong class="mono">17%</strong><span>of bug reports can't be reproduced, and stay open three months longer</span><a class="src" href="https://people.ece.ubc.ca/amesbah/resources/papers/mona-msr14.pdf">MSR 2014</a></div>
+        <div class="jd-stat accent"><strong class="mono" id="hero-time">24m 51s</strong><span>from Margaret's shake to a verified fix in production</span><a class="src" href="#proof">signed certificate</a></div>
+      </section>
+
+      <section class="jd-section" aria-labelledby="two-ways">
+        <h2 id="two-ways">One bug, two ways</h2>
+        <div class="jd-table-wrap">
+          <table class="jd-table">
+            <thead><tr><th></th><th>Today</th><th>With ShakeFix</th></tr></thead>
+            <tbody>
+              <tr><th>Report</th><td>Margaret calls her daughter, who emails support: “the app charged Mum twice”</td><td>She shakes. The app already kept her last 30 taps, the error and a redacted screenshot</td></tr>
+              <tr><th>Reproduce</th><td>“Cannot reproduce.” 17% of bug reports end there</td><td>Agents turn her taps into a test that fails on today's app. No failing test, no fix</td></tr>
+              <tr><th>Fix</th><td>Waits in a queue for a developer</td><td>The smallest change that makes the test pass, checked against production behaviour before it merges</td></tr>
+              <tr><th>Done</th><td>A ticket closes. Nobody asks her</td><td>Her phone asks. Her 👍 closes it, 👎 reopens it, and it reopens by itself if it ever breaks again</td></tr>
+              <tr><th>Everyone else</th><td>Pays twice until someone else complains</td><td>Gets the same fix minutes after the first shake</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="jd-promise">Done means the person it hurt says it's fixed. Not a green pipeline.</p>
+      </section>
+
+      <!-- 2. Three-minute path -->
+      <section class="jd-section" id="path" aria-labelledby="path-h">
+        <h2 id="path-h">If you have three minutes</h2>
+        <ol class="jd-steps" id="steps"></ol>
+        <p class="dim small">Path A (Start Fresh) · <strong>Hands-off</strong>: a shake reaches production with no person in between. Dosing code is Supervised by policy, not by the agent's choice.</p>
+      </section>
+
+      <!-- 3. Criteria → claim → evidence -->
+      <section class="jd-section" id="criteria" aria-labelledby="criteria-h">
+        <h2 id="criteria-h">Judging criteria and the evidence</h2>
+        <p class="dim">Each row is one criterion: what we claim, and the link that proves it.</p>
+        <div class="jd-criteria" id="criteria-list"></div>
+      </section>
+
+      <!-- 4. Live proof -->
+      <section class="jd-section" id="proof" aria-labelledby="proof-h">
+        <h2 id="proof-h">Live proof: signed certificates</h2>
+        <p class="dim">
+          Every closed case gets a certificate signed by the intake on Cloud Run (HMAC-SHA256, key in Secret Manager).
+          This page fetches each one now and asks the intake's public endpoint to verify the signature.
+          “Touches” is the certificate's own count, and we don't edit it.
+        </p>
+        <div class="jd-certs" id="certs" aria-live="polite"></div>
+        <p class="dim small" id="certs-note"></p>
+      </section>
+
+      <!-- 5. Limits -->
+      <section class="jd-section" id="limits" aria-labelledby="limits-h">
+        <h2 id="limits-h">Limits, said plainly</h2>
+        <ol class="jd-limits">
+          <li><strong>Few hands-off runs.</strong> Each certificate counts 1 touch. On #14 and #16 that touch was our own intake's note, miscounted by a webhook race we fixed afterwards; on #15 we rebased after breaking <code>main</code>; on #17 a person merged by design.</li>
+          <li><strong>CareRx is a demo app with synthetic data.</strong> Its four bugs are seeded, each modelled on a documented real failure.</li>
+          <li><strong>Reproduction needs her words.</strong> Taps show what she did; her one-line note says what was wrong. From taps alone, 3 of 10 seeded bugs reproduce.</li>
+          <li><strong>Triggers need a human token.</strong> GitLab flow triggers ignore bot users, so the intake files issues as the maintainer.</li>
+          <li><strong>What runs where.</strong> The four agents are one GitLab Duo flow. Second Opinion's optional labeller calls Claude from CI and can only make a verdict stricter.</li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="jd-foot dim small">
+      <span>ShakeFix · MIT · built for GitLab Transcend “Life After Code”</span>
+      <span class="mono" id="intake-line"></span>
+    </footer>
+
+    <script type="module" src="./src/judges.js"></script>
+  </body>
+</html>

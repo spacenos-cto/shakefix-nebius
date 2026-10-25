@@ -1,0 +1,21 @@
+{
+  "name": "change-currency",
+  "tags": [],
+  "expectFailUntilFixed": "B3",
+  "startRoute": "/bill/3",
+  "actions": [
+    {
+      "t": 0,
+      "type": "change",
+      "testid": "currency-select",
+      "selector": "[data-testid=\"currency-select\"]",
+      "value": "USD",
+      "route": "/bill/3"
+    }
+  ],
+  "expectation": {
+    "testid": "bill-total",
+    "state": "text",
+    "text": "$1,200.00"
+  }
+}

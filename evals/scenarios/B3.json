@@ -1,0 +1,29 @@
+{
+  "id": "B3",
+  "kind": "bug",
+  "title": "USD bill total shows the rupee sign",
+  "class": "currency-format",
+  "evalBug": null,
+  "note": "my dollar bill shows ₹120.00 at the top",
+  "steps": {
+    "startRoute": "/",
+    "actions": [
+      {
+        "type": "click",
+        "testid": "bill-row-12",
+        "selector": "[data-testid=\"bill-row-12\"]"
+      }
+    ]
+  },
+  "expectation": {
+    "testid": "bill-total",
+    "state": "text",
+    "text": "$120.00"
+  },
+  "fix": {
+    "files": [
+      "apps/splitpal/src/lib/currency.js"
+    ]
+  },
+  "gitlab": true
+}

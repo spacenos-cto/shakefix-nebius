@@ -1,0 +1,29 @@
+{
+  "id": "E7",
+  "kind": "bug",
+  "title": "Time zone: late-evening bills show the next day",
+  "class": "date-timezone",
+  "evalBug": "E7",
+  "note": "the date on this bill is wrong, we had dinner on the 10th",
+  "steps": {
+    "startRoute": "/",
+    "actions": [
+      {
+        "type": "click",
+        "testid": "bill-row-7",
+        "selector": "[data-testid=\"bill-row-7\"]"
+      }
+    ]
+  },
+  "expectation": {
+    "testid": "bill-date",
+    "state": "text",
+    "text": "Added 10 Oct 2026"
+  },
+  "fix": {
+    "files": [
+      "apps/splitpal/src/lib/dates.js"
+    ]
+  },
+  "gitlab": false
+}

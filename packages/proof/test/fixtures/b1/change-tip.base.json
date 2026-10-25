@@ -1,0 +1,9 @@
+{
+  "flow": "change-tip", "side": "base", "error": null,
+  "steps": [
+    { "i": 0, "route": "/bill/9",
+      "texts": { "bill-total": "₹549.89", "currency-select": "INR", "tip-select": "10", "tip-total": "₹49.99" },
+      "api": [ { "method": "PATCH", "path": "/api/bills/:id", "status": 200, "body": { "tip": 10 } } ],
+      "db": [ { "op": "update", "table": "bills", "fields": { "tip": 10 } } ] }
+  ]
+}

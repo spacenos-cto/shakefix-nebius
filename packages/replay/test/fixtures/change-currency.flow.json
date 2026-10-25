@@ -1,0 +1,9 @@
+{
+  "name": "change-currency",
+  "tags": ["smoke"],
+  "startRoute": "/bill/1",
+  "actions": [
+    { "t": 0, "type": "change", "testid": "currency-select", "selector": "[data-testid=\"currency-select\"]", "value": "USD", "route": "/bill/1" }
+  ],
+  "expectation": { "testid": "bill-total", "state": "text", "text": "$90.00" }
+}

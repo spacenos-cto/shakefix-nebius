@@ -1,0 +1,19 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261012_c3c3c3",
+  "app": { "name": "carerx", "version": "0.1.0", "baseUrl": "http://localhost:8080" },
+  "device": { "ua": "Mozilla/5.0 (iPhone)", "viewport": [390, 844], "touch": true },
+  "trigger": "shake",
+  "note": "I tapped Pay once and my card was charged twice for the same refill.",
+  "startRoute": "/rx/rx_1",
+  "actions": [
+    { "t": 900, "type": "click", "testid": "refill-btn", "selector": "[data-testid=refill-btn]", "route": "/rx/rx_1" },
+    { "t": 2400, "type": "click", "testid": "pay-btn", "selector": "[data-testid=pay-btn]", "route": "/rx/rx_1/refill" }
+  ],
+  "expectation": { "testid": "order-confirmed", "state": "visible" },
+  "console": [],
+  "network": [
+    { "method": "POST", "path": "/api/prescriptions/rx_1/refills", "status": 201, "ms": 40 },
+    { "method": "POST", "path": "/api/prescriptions/rx_1/refills", "status": 201, "ms": 42 }
+  ]
+}

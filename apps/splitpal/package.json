@@ -1,0 +1,27 @@
+{
+  "name": "splitpal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SplitPal: bill-splitting PWA used as the ShakeFix demo app (contains deliberately seeded bugs, see SEEDED_BUGS.md).",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node --watch-path=server --watch-path=src/lib --watch-path=src/auth server/index.js --dev",
+    "build": "vite build",
+    "start": "node server/index.js",
+    "start:test": "vite build && node server/index.js --test-hooks --port=8080",
+    "test": "vitest run",
+    "lint": "node --check server/index.js && node --check src/lib/split.js && node --check src/lib/tip.js && node --check src/lib/currency.js && node --check src/auth/session.js",
+    "icons": "node scripts/gen-icons.mjs"
+  },
+  "dependencies": {
+    "express": "4.21.1"
+  },
+  "devDependencies": {
+    "vite": "5.4.10",
+    "vitest": "2.1.4"
+  }
+}

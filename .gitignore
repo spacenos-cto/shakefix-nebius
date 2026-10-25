@@ -1,0 +1,36 @@
+node_modules/
+dist/
+.pnpm-store/
+playwright-report/
+test-results/
+/proof/
+*.log
+.env
+.env.*
+!.env.example
+!.env.nebius.example
+.terraform/
+*.tfstate*
+.gcp.json
+.ci_token
+coverage/
+/public/
+.shakefix/tmp/
+/preview.env
+/deploy.env
+
+# private notes (never publish)
+docs/COMPETITORS.md
+docs/INTEL.md
+docs/INTEL-*.md
+docs/WINNERS.md
+docs/SUBMISSION.md
+docs/.intel-crawl-*.json
+
+# graded eval scratch (generated specs, materialised fix trees with node_modules junctions)
+evals/.work/
+infra/terraform.tfvars
+
+# Claude Code local state and agent worktrees
+.claude/
+docs/JURY-*.md

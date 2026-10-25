@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="ShakeFix Discharge Certificate: a signed record of how a shaken bug was reproduced, fixed, checked and shipped." />
+    <title>Discharge Certificate · ShakeFix</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23111110'/><path d='M8 16h5l2-6 3 12 2-6h4' stroke='%23ff5a1f' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+  </head>
+  <body class="cert-page">
+    <nav class="cert-bar" aria-label="Certificate actions">
+      <a class="mode-btn" id="board-link" href="./index.html">← ER Board</a>
+      <div class="cert-bar-actions">
+        <button type="button" class="mode-btn" id="copy-link">Copy link</button>
+        <button type="button" class="mode-btn primary" id="print">Print / PDF</button>
+      </div>
+    </nav>
+
+    <main class="cert-wrap">
+      <section class="cert-message" id="message" hidden aria-live="polite">
+        <svg class="pulse" viewBox="0 0 64 24" aria-hidden="true"><path d="M0 12h16l4-9 6 18 5-14 3 5h30" /></svg>
+        <h1 id="message-title">Loading certificate…</h1>
+        <p class="dim" id="message-text"></p>
+        <a class="link" id="message-link" href="./index.html" hidden>Open the ER Board →</a>
+      </section>
+
+      <article class="cert" id="cert" hidden aria-labelledby="cert-title">
+        <div class="cert-sample mono" id="sample" hidden>SAMPLE · recorded hero run · not signed</div>
+
+        <header class="cert-head">
+          <div class="cert-brand">
+            <svg class="pulse" viewBox="0 0 64 24" aria-hidden="true"><path d="M0 12h16l4-9 6 18 5-14 3 5h30" /></svg>
+            <span class="mono">SHAKEFIX ER</span>
+          </div>
+          <h1 id="cert-title">Discharge Certificate</h1>
+          <p class="cert-lede">This certifies that the patient below was admitted on a shake, reproduced with a failing test,
+            operated on by AI agents, cleared by Second Opinion and discharged to production.</p>
+        </header>
+
+        <section class="cert-patient" aria-label="Patient">
+          <span class="cert-label">Patient</span>
+          <p class="cert-patient-title" id="patient"></p>
+          <p class="mono dim cert-ids" id="ids"></p>
+        </section>
+
+        <section class="cert-numbers" aria-label="Key numbers">
+          <div class="cert-num accent">
+            <span class="cert-label">Shake → live</span>
+            <strong class="mono" id="n-live">—</strong>
+            <span class="dim small" id="n-live-sub"></span>
+          </div>
+          <div class="cert-num">
+            <span class="cert-label">Human touches</span>
+            <strong class="mono" id="n-touches">—</strong>
+            <span class="dim small" id="n-touches-sub"></span>
+          </div>
+          <div class="cert-num">
+            <span class="cert-label">Second Opinion</span>
+            <strong id="n-proof">—</strong>
+            <span class="dim small" id="n-proof-sub"></span>
+          </div>
+        </section>
+
+        <div class="cert-body">
+          <section class="cert-timeline" aria-label="Timeline">
+            <h2 class="cert-label">Chart</h2>
+            <ol id="timeline"></ol>
+          </section>
+
+          <aside class="cert-side">
+            <section aria-label="Reporter verdict">
+              <h2 class="cert-label">Reporter verdict</h2>
+              <p class="cert-verdict" id="verdict"></p>
+            </section>
+            <section aria-label="Records">
+              <h2 class="cert-label">Records</h2>
+              <ul class="cert-links" id="links"></ul>
+            </section>
+          </aside>
+        </div>
+
+        <section class="cert-seal" aria-label="Seal">
+          <div class="seal-mark" aria-hidden="true">
+            <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" /><circle cx="60" cy="60" r="44" /><path d="M30 62h18l5-14 8 26 6-18 4 6h19" /></svg>
+          </div>
+          <div class="seal-body">
+            <span class="cert-label">Evidence digest · SHA-256</span>
+            <code class="mono cert-digest" id="digest"></code>
+            <p class="small dim" id="sig-line"></p>
+            <div class="seal-verify">
+              <button type="button" class="mode-btn primary" id="verify">Verify signature</button>
+              <span class="verify-result" id="verify-result" aria-live="polite"></span>
+            </div>
+          </div>
+        </section>
+
+        <footer class="cert-foot mono dim small">
+          <span id="issued"></span>
+          <span id="schema"></span>
+        </footer>
+      </article>
+    </main>
+    <script type="module" src="./src/certificate.js"></script>
+  </body>
+</html>

@@ -1,0 +1,74 @@
+%% ShakeFix end-to-end flow (BUILD_SPEC 3.1). Export: npx -p @mermaid-js/mermaid-cli mmdc -i docs/architecture.mmd -o docs/architecture.png -b "#111110" -w 1800
+flowchart TD
+    classDef user fill:#f3ead8,stroke:#111110,color:#111110
+    classDef gcp fill:#1b1a18,stroke:#ff5a1f,color:#f3ead8
+    classDef duo fill:#26241f,stroke:#8f5bd8,color:#f3ead8
+    classDef ci fill:#26241f,stroke:#2f80ed,color:#f3ead8
+    classDef bad fill:#3a1714,stroke:#ff6b5e,color:#f3ead8
+    classDef good fill:#13301f,stroke:#6fcf8a,color:#f3ead8
+
+    U["1 · User on phone<br/>SplitPal PWA on Cloud Run<br/>shake / Report bug bubble"]:::user
+    SDK["Shake SDK captures<br/>screenshot · console · last 30 actions (replay.json)<br/>route · device · app version"]:::user
+    U --> SDK
+    SDK -- "POST /v1/reports" --> INT
+
+    subgraph GCP["Google Cloud"]
+      INT["2 · Intake (Cloud Run)<br/>validate + scrub PII · dedupe<br/>commit reports/&lt;rid&gt;/replay.json [skip ci]<br/>create issue with human PAT"]:::gcp
+      FS[("Firestore<br/>report state + push subscription")]:::gcp
+      AR[("Artifact Registry<br/>image per SHA")]:::gcp
+      RUN["Cloud Run splitpal<br/>tags: main · main-test · mr-&lt;iid&gt;"]:::gcp
+      INT --- FS
+    end
+
+    INT -- "Work item created trigger" --> FLOW
+
+    subgraph DUO["GitLab Duo Agent Platform · custom flow shakefix (Claude)"]
+      TN["Triage Nurse<br/>replay → failing Playwright spec"]:::duo
+      SU["Surgeon<br/>minimal fix · tests green · Ledger entry · branch"]:::duo
+      AT["Attending<br/>review vs diagnosis + policy.yml"]:::duo
+      DI["Discharge<br/>MR + Patient Chart + labels"]:::duo
+      TN -- reproduced --> SU --> AT --> DI
+      TN -- "not reproduced" --> DI
+    end
+    FLOW(("3 · flow start")):::duo --> TN
+
+    DI --> MRP
+
+    subgraph CI["4 · MR pipeline (GitLab CI)"]
+      MRP["lint · unit · regression spec<br/>SAST · dependency · secret detection"]:::ci
+      BLD["build image (Cloud Build, WIF)"]:::ci
+      PRV["preview revision<br/>tag mr-&lt;iid&gt;, no traffic"]:::ci
+      PRF["Second Opinion: replay flows on main-test vs mr-&lt;iid&gt;<br/>diff screens · API · DB writes<br/>label intended / unintended"]:::ci
+      GATE{"gate"}:::ci
+      MRP --> BLD --> PRV --> PRF --> GATE
+    end
+    BLD --> AR
+    PRV --> RUN
+
+    GATE -- "0 unintended, no needs-human" --> MERGE["5 · auto-merge (bot token)"]:::good
+    GATE -- "unintended, 1st time" --> REOP["label shakefix::unintended<br/>intake posts @mention with human PAT"]:::bad
+    REOP -- "Mention trigger: re-operate" --> TN
+    GATE -- "unintended, 2nd time / policy hit" --> HUMAN["needs-human · stop"]:::bad
+
+    MERGE --> MAIN
+
+    subgraph MAINP["Main pipeline"]
+      MAIN["deploy prod (100% to new revision)<br/>record PREV_REVISION"]:::ci
+      SMOKE{"post-deploy smoke"}:::ci
+      DONE["notify intake (HMAC) → Web Push 'Fixed'<br/>close issue with Discharge note · Ledger stamp"]:::good
+      RB["rollback: traffic → PREV_REVISION<br/>reopen issue · shakefix::rolled-back"]:::bad
+      MAIN --> SMOKE
+      SMOKE -- pass --> DONE
+      SMOKE -- fail --> RB
+    end
+    MAIN --> RUN
+    DONE -- "push notification" --> U
+
+    VERD{"6 · patient's verdict<br/>Fixed ✓ — is it working for you now?"}:::user
+    U --> VERD
+    VERD -- "👍 POST /v1/reports/:rid/verdict" --> OK["note ✅ Verified by the reporter<br/>label shakefix::verified"]:::good
+    VERD -- "👎 re-report + fresh replay" --> REJ["commit replay-&lt;n&gt;.json · reopen issue<br/>shakefix::reopened · @mention re-triage (human PAT)"]:::bad
+    REJ -- "Mention trigger: re-triage" --> TN
+
+    BOARD["ER Board (GitLab Pages)<br/>polls /v1/board every 5 s"]:::user
+    INT -. "/v1/board" .-> BOARD

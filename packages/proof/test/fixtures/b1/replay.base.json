@@ -1,0 +1,18 @@
+{
+  "flow": "replay-r_20261011_8f3a2c", "side": "base", "error": null,
+  "steps": [
+    { "i": 0, "route": "/bill/new", "texts": { "save-bill-btn": "Save", "total-input": "1000" }, "api": [], "db": [] },
+    { "i": 1, "route": "/bill/4",
+      "texts": { "bill-total": "₹1,000.00", "settle-btn": "Settle up", "share-Asha": "₹333.33", "share-Ben": "₹333.33", "share-Chen": "₹333.33", "tip-total": "₹0.00" },
+      "api": [ { "method": "POST", "path": "/api/bills", "status": 201, "body": { "shares": [ { "amount": 333.33, "name": "Asha" }, { "amount": 333.33, "name": "Ben" }, { "amount": 333.33, "name": "Chen" } ], "total": 1000 } } ],
+      "db": [ { "op": "insert", "table": "bills", "fields": { "title": "Dinner", "total": 1000 } } ] },
+    { "i": 2, "route": "/bill/4/settle",
+      "texts": { "confirm-settle-btn": "Confirm", "pay-Asha-btn": "Pay ₹333.33", "pay-Ben-btn": "Pay ₹333.33", "pay-Chen-btn": "Pay ₹333.33" },
+      "api": [ { "method": "GET", "path": "/api/bills/:id", "status": 200, "body": { "settled": false, "shares": [ { "amount": 333.33, "name": "Asha" }, { "amount": 333.33, "name": "Ben" }, { "amount": 333.33, "name": "Chen" } ], "total": 1000 } } ],
+      "db": [] },
+    { "i": 3, "route": "/bill/4/settle",
+      "texts": { "confirm-settle-btn": "Confirm", "error-banner": "Amounts do not add up", "pay-Asha-btn": "Pay ₹333.33", "pay-Ben-btn": "Pay ₹333.33", "pay-Chen-btn": "Pay ₹333.33" },
+      "api": [ { "method": "POST", "path": "/api/bills/:id/settle", "status": 409, "body": { "ok": false } } ],
+      "db": [] }
+  ]
+}

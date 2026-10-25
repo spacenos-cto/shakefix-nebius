@@ -1,0 +1,67 @@
+{
+  "schema": "shakefix.demo/v1",
+  "about": "Hero run recorded from https://intake-pzd4uebegq-uc.a.run.app on 2026-10-22T18:59:19.950Z (rid r_20261012_3d080f). Every stage is a recorded intake timestamp.",
+  "recordedAt": "2026-10-12T08:21:00.869Z",
+  "rid": "r_20261012_3d080f",
+  "issueIid": 14,
+  "mrIid": 12,
+  "title": "🩺 [shake] I paid my $12 copay for my heart pills once and it charged me $24. (/orders/1002)",
+  "sev": 3,
+  "route": "/orders/1002",
+  "issueUrl": "https://gitlab.com/nxt-spacenos-global/shakefix/-/issues/14",
+  "mrUrl": "https://gitlab.com/nxt-spacenos-global/shakefix/-/merge_requests/12",
+  "branch": null,
+  "humanTouches": 1,
+  "cost": null,
+  "proof": null,
+  "stages": [
+    {
+      "key": "shaken",
+      "offsetS": 0,
+      "source": "recorded",
+      "evidence": "intake timeline 2026-10-12T08:21:00.869Z"
+    },
+    {
+      "key": "issue_created",
+      "offsetS": 4,
+      "source": "recorded",
+      "evidence": "intake timeline 2026-10-12T08:21:04.381Z"
+    },
+    {
+      "key": "triage_start",
+      "offsetS": 4,
+      "source": "recorded",
+      "evidence": "intake timeline 2026-10-12T08:21:04.951Z"
+    },
+    {
+      "key": "mr_opened",
+      "offsetS": 330,
+      "source": "recorded",
+      "evidence": "intake timeline 2026-10-12T08:26:30.498Z"
+    },
+    {
+      "key": "second_opinion",
+      "offsetS": 726,
+      "source": "recorded",
+      "evidence": "intake timeline 2026-10-12T08:33:06.721Z"
+    },
+    {
+      "key": "merged",
+      "offsetS": 782,
+      "source": "recorded",
+      "evidence": "intake timeline 2026-10-12T08:34:02.815Z"
+    },
+    {
+      "key": "deployed",
+      "offsetS": 1491,
+      "source": "recorded",
+      "evidence": "intake timeline 2026-10-12T08:45:52.140Z"
+    },
+    {
+      "key": "verified",
+      "offsetS": 1590,
+      "source": "recorded",
+      "evidence": "intake timeline 2026-10-12T08:47:30.770Z"
+    }
+  ]
+}

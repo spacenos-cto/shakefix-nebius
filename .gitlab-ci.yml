@@ -1,0 +1,604 @@
+# ShakeFix root pipeline (BUILD_SPEC 12).
+#
+# MR pipeline   : lint -> unit + regression -> SAST / dependency / secret scans -> build image
+#                 -> preview revision on Cloud Run (tag mr-<iid>, no traffic) -> Second Opinion -> auto_merge
+# Main pipeline : build -> deploy_prod (records PREV_REVISION) -> post_deploy_smoke
+#                 -> notify_and_close + ledger stamp | rollback (on smoke failure) -> pages
+# Tag pipeline  : optional AI Catalog publish of the flow.
+#
+# Required CI/CD variables (docs/setup-gitlab.md): SHAKEFIX_BOT_TOKEN, GCP_PROJECT_ID, GCP_REGION,
+# GCP_WIF_PROVIDER, GCP_SA_EMAIL, INTAKE_URL, INTAKE_HOOK_SECRET. Optional: ANTHROPIC_API_KEY
+# (Second Opinion labeler), BASE_URL / PROD_URL overrides, FORCE_SMOKE_FAIL=1 (rollback demo),
+# CATALOG_SYNC_TOKEN (AI Catalog publish).
+# Google Cloud auth is Workload Identity Federation through id_tokens. No JSON keys anywhere.
+
+stages: [lint, test, secure, build, preview, second_opinion, merge, deploy, monitor, ledger, pages]
+
+include:
+  - template: Jobs/SAST.gitlab-ci.yml
+  - template: Jobs/Dependency-Scanning.gitlab-ci.yml
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
+
+workflow:
+  name: "$PIPELINE_NAME"
+  rules:
+    # Intake replay commits and ledger stamps carry [skip ci]. GitLab already skips them;
+    # this rule makes the intent explicit (and covers "skip ci" pushed with other casing).
+    - if: $CI_COMMIT_MESSAGE =~ /\[(skip ci|ci skip)\]/i
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      variables: { PIPELINE_NAME: "MR !$CI_MERGE_REQUEST_IID · $CI_MERGE_REQUEST_TITLE" }
+    # No duplicate branch pipeline while an MR is open for the branch.
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      variables: { PIPELINE_NAME: "main · $CI_COMMIT_SHORT_SHA · $CI_COMMIT_TITLE" }
+    - if: $CI_COMMIT_TAG
+      variables: { PIPELINE_NAME: "tag $CI_COMMIT_TAG" }
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+variables:
+  PIPELINE_NAME: "ShakeFix pipeline"
+  APP_SERVICE: carerx   # the demo app (SplitPal, the previous one, stays in apps/splitpal for evals)
+  INTAKE_SERVICE: intake
+  AR_REPO: shakefix
+  IMAGE: "$GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$AR_REPO/carerx:$CI_COMMIT_SHORT_SHA"
+  INTAKE_IMAGE: "$GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/$AR_REPO/intake:$CI_COMMIT_SHORT_SHA"
+  APP_DOCKERFILE: apps/carerx/Dockerfile
+  APP_CONTEXT: apps/carerx
+  PLAYWRIGHT_IMAGE: mcr.microsoft.com/playwright:v1.58.2-noble   # matches @playwright/test 1.58.2
+  GCLOUD_IMAGE: google/cloud-sdk:497.0.0-alpine
+  NODE_IMAGE: node:22-alpine
+  # Security scanners: this is a JS/TS monorepo.
+  SAST_EXCLUDED_PATHS: "spec, test, tests, tmp, node_modules, **/dist, reports, proof"
+  DS_EXCLUDED_PATHS: "spec, test, tests, tmp, reports"
+  SECURE_LOG_LEVEL: info
+  # Where jobs run. shakefix-local = the project runner on the maintainer's machine (free).
+  # Set the project variable RUNNER_TAG=saas-linux-small-amd64 to fall back to GitLab-hosted runners.
+  RUNNER_TAG: shakefix-local
+
+default:
+  interruptible: true
+  tags: [$RUNNER_TAG]
+  timeout: 25m # a hung job (e.g. a stuck package mirror) must not hold a runner for an hour
+
+# ---------------------------------------------------------------------------------------------
+# Change sets: docs-only and report-only commits skip the heavy jobs.
+.app_changes: &app_changes
+  - apps/**/*
+  - packages/**/*
+  - services/**/*
+  - tests/**/*
+  - dashboard/**/*
+  - scripts/ci/**/*
+  - .shakefix/**/*
+  - package.json
+  - pnpm-lock.yaml
+  - pnpm-workspace.yaml
+  - tsconfig.base.json
+  - playwright.config.ts
+  - .gitlab-ci.yml
+  - infra/cloudbuild.yaml
+
+.demo_app_changes: &demo_app_changes
+  - apps/carerx/**/*
+  - packages/sdk/**/*
+  - package.json
+  - pnpm-lock.yaml
+  - infra/cloudbuild.yaml
+  - .gitlab-ci.yml
+
+.intake_changes: &intake_changes
+  - services/intake/**/*
+  - infra/cloudbuild.yaml
+
+.dashboard_changes: &dashboard_changes
+  - dashboard/**/*
+  - .shakefix/ledger/**/*
+
+# ---------------------------------------------------------------------------------------------
+# Templates
+.node:
+  image: $PLAYWRIGHT_IMAGE
+  variables:
+    PNPM_STORE: .pnpm-store
+  cache:
+    key:
+      files: [pnpm-lock.yaml]
+      prefix: pnpm
+    paths: [.pnpm-store]
+    policy: pull-push
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@9.12.0 --activate
+    - pnpm config set store-dir "$PNPM_STORE"
+    - pnpm install --frozen-lockfile
+
+.scripts:
+  image: $NODE_IMAGE
+  before_script:
+    - apk add --no-cache bash curl jq openssl git >/dev/null
+
+.gcp_auth:
+  image: $GCLOUD_IMAGE
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: "https://iam.googleapis.com/$GCP_WIF_PROVIDER"
+  before_script:
+    - apk add --no-cache bash curl jq openssl >/dev/null
+    - echo "$GITLAB_OIDC_TOKEN" > .ci_token
+    - >
+      gcloud iam workload-identity-pools create-cred-config "$GCP_WIF_PROVIDER"
+      --service-account="$GCP_SA_EMAIL"
+      --credential-source-file=.ci_token
+      --output-file=.gcp.json
+    - gcloud auth login --cred-file=.gcp.json --quiet
+    - gcloud config set project "$GCP_PROJECT_ID" --quiet
+    - gcloud config set run/region "$GCP_REGION" --quiet
+
+# ---------------------------------------------------------------------------------------------
+# Plan, explained: every MR that touches infra/** gets a plain-English Infra Chart of its Terraform
+# plan (scripts/infra/explain-plan.mjs). Read-only identity (GCP_PLAN_SA_EMAIL); applies stay human.
+infra_plan:
+  stage: test
+  image:
+    name: hashicorp/terraform:1.9.8
+    entrypoint: [""]
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: "https://iam.googleapis.com/$GCP_WIF_PROVIDER"
+  script:
+    - apk add --no-cache nodejs curl jq >/dev/null
+    - echo "$GITLAB_OIDC_TOKEN" > .ci_token
+    - >
+      jq -n --arg aud "//iam.googleapis.com/$GCP_WIF_PROVIDER" --arg tok "$PWD/.ci_token"
+      --arg sa "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GCP_PLAN_SA_EMAIL}:generateAccessToken"
+      '{type:"external_account",audience:$aud,subject_token_type:"urn:ietf:params:oauth:token-type:jwt",
+      token_url:"https://sts.googleapis.com/v1/token",credential_source:{file:$tok},service_account_impersonation_url:$sa}'
+      > .gcp.json
+    - export GOOGLE_APPLICATION_CREDENTIALS="$PWD/.gcp.json"
+    - cd infra && cp "$INFRA_TFVARS" terraform.tfvars
+    - terraform init -input=false -lockfile=readonly
+    - terraform plan -input=false -lock=false -out=tf.plan
+    - terraform show -json tf.plan > plan.json
+    - node ../scripts/infra/explain-plan.mjs plan.json | tee infra-chart.md
+    - >
+      jq -n --rawfile b infra-chart.md '{body:$b}' |
+      curl -fsS -X POST -H "PRIVATE-TOKEN: $SHAKEFIX_BOT_TOKEN" -H 'content-type: application/json' --data-binary @-
+      "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes" >/dev/null
+  artifacts:
+    paths: [infra/infra-chart.md]
+    expose_as: "Infra Chart"
+    expire_in: 30 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: [infra/**/*]
+
+# ---------------------------------------------------------------------------------------------
+# lint / test
+lint:
+  extends: .node
+  stage: lint
+  script:
+    - pnpm lint
+    - pnpm typecheck
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: *app_changes
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *app_changes
+
+unit:
+  extends: .node
+  stage: test
+  script:
+    - pnpm -r --if-present test
+  artifacts:
+    when: always
+    reports:
+      junit: "**/junit.xml"
+    expire_in: 14 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: *app_changes
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *app_changes
+
+regression:
+  extends: .node
+  stage: test
+  variables:
+    PLAYWRIGHT_JUNIT_OUTPUT_NAME: test-results/junit.xml
+    BASE_URL: http://localhost:8080
+  script:
+    # playwright.config.ts owns the dev server (webServer). The regression spec written by the
+    # Triage Nurse (tests/regressions/issue-<iid>.spec.ts) must pass here: fail -> pass proof.
+    - pnpm exec playwright test --reporter=line,junit
+  artifacts:
+    when: always
+    paths: [playwright-report/, test-results/]
+    reports:
+      junit: test-results/junit.xml
+    expire_in: 14 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: *app_changes
+
+# ---------------------------------------------------------------------------------------------
+# secure: GitLab templates, moved into the "secure" stage
+sast:
+  stage: secure
+
+dependency_scanning:
+  stage: secure
+
+secret_detection:
+  stage: secure
+
+# ---------------------------------------------------------------------------------------------
+# build: SDK bundle (shipped inside the demo app image as /shakefix-sdk.js)
+build_sdk:
+  extends: .node
+  stage: build
+  needs: []
+  script:
+    - pnpm --filter shakefix-sdk build
+  artifacts:
+    paths: [packages/sdk/dist/]
+    expire_in: 1 day
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: *demo_app_changes
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *demo_app_changes
+
+# build: container image to Artifact Registry, tagged by short SHA
+build_image:
+  extends: .gcp_auth
+  stage: build
+  needs: [build_sdk]
+  script:
+    # MR preview = what main becomes after the merge. A branch cut before newer fixes landed would
+    # otherwise look like it undoes them, and Second Opinion would call that a side effect.
+    - |
+      if [ "$CI_PIPELINE_SOURCE" = "merge_request_event" ]; then
+        git fetch -q --unshallow origin 2>/dev/null || true
+        git fetch -q origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+        git -c user.email=ci@shakefix.invalid -c user.name="ShakeFix CI" merge --no-edit -q "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"           || { echo "This MR conflicts with $CI_MERGE_REQUEST_TARGET_BRANCH_NAME; rebase it first."; exit 1; }
+        echo "Preview built from $(git rev-parse --short HEAD) = MR head merged with $CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+      fi
+    - echo "Building $IMAGE"
+    - test -f packages/sdk/dist/shakefix-sdk.js && cp packages/sdk/dist/shakefix-sdk.js "$APP_CONTEXT/public/" || echo "SDK bundle missing; app serves no-op stub"
+    - >
+      gcloud builds submit . --config infra/cloudbuild.yaml --quiet --gcs-source-staging-dir="gs://${GCP_PROJECT_ID}_cloudbuild/source"
+      --substitutions="_IMAGE=$IMAGE,_DOCKERFILE=$APP_DOCKERFILE,_CONTEXT=$APP_CONTEXT,_VERSION=$CI_COMMIT_SHORT_SHA,_SA=$GCP_SA_EMAIL"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: *demo_app_changes
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *demo_app_changes
+
+# ---------------------------------------------------------------------------------------------
+# preview: the MR's branch revision on Cloud Run, tagged mr-<iid>, receiving no traffic
+preview_deploy:
+  extends: .gcp_auth
+  stage: preview
+  needs: [build_image]
+  script:
+    - >
+      gcloud run deploy "$APP_SERVICE" --image "$IMAGE" --region "$GCP_REGION" --max-instances 1
+      --no-traffic --tag "mr-$CI_MERGE_REQUEST_IID"
+      --update-env-vars "SHAKEFIX_TEST_HOOKS=1,APP_VERSION=$CI_COMMIT_SHORT_SHA" --quiet
+    - HEAD_URL="$(bash scripts/ci/traffic.sh url "mr-$CI_MERGE_REQUEST_IID")"
+    - MAIN_URL="$(bash scripts/ci/traffic.sh url main-test)"
+    - test -n "$HEAD_URL" || { echo "no URL for tag mr-$CI_MERGE_REQUEST_IID"; exit 1; }
+    - echo "HEAD_URL=$HEAD_URL" >> preview.env
+    - echo "MAIN_URL=$MAIN_URL" >> preview.env
+    - cat preview.env
+  artifacts:
+    reports:
+      dotenv: preview.env
+  environment:
+    name: review/mr-$CI_MERGE_REQUEST_IID
+    url: $HEAD_URL
+    on_stop: preview_stop
+    auto_stop_in: 3 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: *demo_app_changes
+
+preview_stop:
+  extends: .gcp_auth
+  stage: preview
+  needs: []
+  interruptible: false
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - >
+      gcloud run services update-traffic "$APP_SERVICE" --region "$GCP_REGION"
+      --remove-tags "mr-$CI_MERGE_REQUEST_IID" --quiet || echo "tag already gone"
+  environment:
+    name: review/mr-$CI_MERGE_REQUEST_IID
+    action: stop
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: *demo_app_changes
+      when: manual
+      allow_failure: true
+
+# ---------------------------------------------------------------------------------------------
+# second_opinion (Second Opinion): replay flows on main (base) vs the MR revision (head), diff, label, gate
+second_opinion:
+  extends: .node
+  stage: second_opinion
+  # One at a time: every capture resets the shared main-test base, so two MRs in parallel would
+  # read each other's data.
+  resource_group: second-opinion-base
+  needs:
+    - job: preview_deploy
+      artifacts: true
+  script:
+    - BASE="${BASE_URL:-$MAIN_URL}"
+    - test -n "$BASE" || { echo "No base URL. Set BASE_URL or deploy main once (tag main-test)."; exit 1; }
+    - echo "Second Opinion base=$BASE head=$HEAD_URL"
+    - >
+      node packages/proof/bin/proof.js run --base "$BASE" --head "$HEAD_URL"
+      --flows "tests/e2e/*.flow.json" --replay-from-mr "$CI_MERGE_REQUEST_IID" --out proof/
+    # The agents' regression spec on base and head: the strongest reproduction proof (fails → passes).
+    - node scripts/ci/spec-reproduction.mjs --base "$BASE" --head "$HEAD_URL" --branch "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" --proof proof/proof.json
+    # Labeler: Claude via ANTHROPIC_API_KEY (BUILD_SPEC 11.6 B); falls back to deterministic rules.
+    - node packages/proof/bin/proof.js label --in proof/proof.json --issue-from-mr "$CI_MERGE_REQUEST_IID"
+    - node packages/proof/bin/proof.js report --in proof/proof.json --post-mr "$CI_MERGE_REQUEST_IID"
+    # 0 = ready, 10 = sent back to surgery, 11 = needs-human. Only real errors (1) fail the job;
+    # 10/11 are decisions, recorded as MR labels, and auto_merge simply does not run.
+    - bash scripts/ci/proof-gate.sh proof/proof.json || { rc=$?; [ "$rc" = 10 ] || [ "$rc" = 11 ] || exit "$rc"; echo "gate decision $rc recorded as label"; }
+  artifacts:
+    when: always
+    paths: [proof/]
+    expose_as: "Second Opinion report"
+    expire_in: 90 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: *demo_app_changes
+
+# Blast Radius: which routes, components and (synthetic) patients this MR's CareRx change reaches.
+# Node built-ins only, so a bare node image and no install. Informational: never blocks a merge.
+blast_radius:
+  stage: second_opinion
+  image: node:22-alpine
+  needs: []
+  allow_failure: true
+  script:
+    - apk add --no-cache git >/dev/null
+    - git fetch -q origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+    - FILES=$(git diff --name-only "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME...HEAD" | paste -sd, -)
+    - node scripts/ci/blast-note.mjs --files "$FILES" --app-url "${PROD_URL:-https://carerx-pzd4uebegq-uc.a.run.app}" --mr "$CI_MERGE_REQUEST_IID"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: [apps/carerx/src/**/*]
+
+# ---------------------------------------------------------------------------------------------
+# merge: only ShakeFix MRs, only when Second Opinion labelled shakefix::ready and policy allows hands-off.
+# No `needs`: the job waits for every earlier stage (tests, scans, Second Opinion) to pass.
+auto_merge:
+  extends: .scripts
+  stage: merge
+  interruptible: false
+  before_script:
+    - apk add --no-cache bash curl jq openssl git >/dev/null
+    - corepack enable && corepack prepare pnpm@9.12.0 --activate
+    - pnpm install --frozen-lockfile --filter "@shakefix/proof..." || echo "proof deps not installed; gate falls back to scripts"
+  script:
+    - bash scripts/ci/merge.sh
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^shakefix\//
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS =~ /(^|,)shakefix(,|$)/
+
+# ---------------------------------------------------------------------------------------------
+# deploy: production. Records the revision that served traffic before, for rollback.
+deploy_prod:
+  extends: .gcp_auth
+  stage: deploy
+  needs:
+    - job: build_image
+  interruptible: false
+  resource_group: second-opinion-base # also redeploys main-test, so it queues with Second Opinion
+  script:
+    - PREV="$(bash scripts/ci/traffic.sh current)"
+    - echo "PREV_REVISION=$PREV" >> deploy.env
+    # Second Opinion base: same image with test hooks ON, tagged main-test, receiving no traffic.
+    - >
+      gcloud run deploy "$APP_SERVICE" --image "$IMAGE" --region "$GCP_REGION" --max-instances 1
+      --no-traffic --tag main-test
+      --update-env-vars "SHAKEFIX_TEST_HOOKS=1,APP_VERSION=$CI_COMMIT_SHORT_SHA" --quiet
+    # Production: test hooks OFF, tag main, then all traffic to it.
+    - >
+      gcloud run deploy "$APP_SERVICE" --image "$IMAGE" --region "$GCP_REGION" --max-instances 1
+      --tag main --update-env-vars "SHAKEFIX_TEST_HOOKS=0,APP_VERSION=$CI_COMMIT_SHORT_SHA,INTAKE_URL=$INTAKE_URL" --quiet
+    - bash scripts/ci/traffic.sh latest
+    - URL="${PROD_URL:-$(gcloud run services describe "$APP_SERVICE" --region "$GCP_REGION" --format='value(status.url)')}"
+    - echo "PROD_URL=$URL" >> deploy.env
+    - cat deploy.env
+  artifacts:
+    reports:
+      dotenv: deploy.env
+  environment:
+    name: production
+    url: $PROD_URL
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *demo_app_changes
+
+deploy_intake:
+  extends: .gcp_auth
+  stage: deploy
+  needs: []
+  interruptible: false
+  resource_group: intake
+  script:
+    - |
+      if [ ! -f services/intake/Dockerfile ]; then
+        echo "services/intake/Dockerfile missing; using a minimal Node 22 image"
+        cat > services/intake/Dockerfile <<'DOCKER'
+      FROM node:22-slim
+      WORKDIR /app
+      ENV NODE_ENV=production
+      COPY package.json ./
+      RUN npm install --omit=dev --no-audit --no-fund
+      COPY src ./src
+      EXPOSE 8080
+      CMD ["node", "src/server.js"]
+      DOCKER
+      fi
+    - >
+      gcloud builds submit . --config infra/cloudbuild.yaml --quiet --gcs-source-staging-dir="gs://${GCP_PROJECT_ID}_cloudbuild/source"
+      --substitutions="_IMAGE=$INTAKE_IMAGE,_DOCKERFILE=services/intake/Dockerfile,_CONTEXT=services/intake,_VERSION=$CI_COMMIT_SHORT_SHA,_SA=$GCP_SA_EMAIL"
+    - >
+      gcloud run deploy "$INTAKE_SERVICE" --image "$INTAKE_IMAGE" --region "$GCP_REGION"
+      --update-env-vars "APP_VERSION=$CI_COMMIT_SHORT_SHA" --quiet
+  environment:
+    name: intake
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *intake_changes
+
+# ---------------------------------------------------------------------------------------------
+# monitor: smoke replay against production; roll back automatically if it fails
+post_deploy_smoke:
+  extends: .node
+  stage: monitor
+  needs:
+    - job: deploy_prod
+      artifacts: true
+  interruptible: false
+  script:
+    - test "${FORCE_SMOKE_FAIL:-0}" != "1" || { echo "FORCE_SMOKE_FAIL=1 (rollback demo)"; exit 1; }
+    - |
+      for i in 1 2 3 4 5 6; do
+        curl -fsS "$PROD_URL/api/health" && break
+        echo "waiting for $PROD_URL ($i)"; sleep 5
+        [ "$i" = 6 ] && exit 1
+      done
+    - BASE_URL="$PROD_URL" pnpm exec playwright test --grep @smoke --reporter=line
+  artifacts:
+    when: always
+    paths: [playwright-report/, test-results/]
+    expire_in: 30 days
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *demo_app_changes
+
+rollback:
+  extends: .gcp_auth
+  stage: monitor
+  needs:
+    - job: deploy_prod
+      artifacts: true
+    - job: post_deploy_smoke
+  interruptible: false
+  resource_group: production
+  script:
+    - bash scripts/ci/rollback.sh
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *demo_app_changes
+      when: on_failure
+
+# ---------------------------------------------------------------------------------------------
+# ledger: tell the reporter, discharge the issue, stamp the Ledger
+notify_and_close:
+  extends: .scripts
+  stage: ledger
+  needs:
+    - job: post_deploy_smoke
+    - job: deploy_prod
+      artifacts: true
+  interruptible: false
+  script:
+    - bash scripts/ci/notify.sh deployed
+    - bash scripts/ci/close-issue.sh
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *demo_app_changes
+
+# Done stays done: every past case's regression spec runs on production after each deploy. A case
+# whose spec fails again is reopened as shakefix::readmitted and the on-call is paged.
+recheck_discharged:
+  extends: .node
+  stage: ledger
+  needs:
+    - job: post_deploy_smoke
+    - job: deploy_prod
+      artifacts: true
+  interruptible: false
+  script:
+    - command -v jq >/dev/null || (apt-get update -qq && apt-get install -y -qq jq >/dev/null)
+    - bash scripts/ci/recheck.sh
+  artifacts:
+    when: always
+    paths: [recheck.json, playwright-report/]
+    expire_in: 30 days
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *demo_app_changes
+
+ledger_stamp:
+  extends: .scripts
+  stage: ledger
+  needs:
+    - job: notify_and_close
+  interruptible: false
+  script:
+    - bash scripts/ci/ledger-commit.sh
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *demo_app_changes
+
+# ---------------------------------------------------------------------------------------------
+# pages: the ER Board
+pages:
+  extends: .node
+  stage: pages
+  needs: []
+  variables:
+    VITE_INTAKE_URL: $INTAKE_URL
+  script:
+    - pnpm --filter dashboard build
+    - rm -rf public && mv dashboard/dist public
+  artifacts:
+    paths: [public]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *dashboard_changes
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "web"
+
+# ---------------------------------------------------------------------------------------------
+# Optional: publish the flow to the AI Catalog on tags.
+# Uses the AI Catalog CI/CD component (gitlab.com/components/ai-catalog, "catalog-sync"), which
+# reads flows from a directory in its own envelope format. scripts/ci/build-catalog-flow.mjs
+# generates ai-catalog/flows/shakefix.yml from .gitlab/duo/flows/shakefix.yml; run it and commit
+# the output before tagging. To turn this on, uncomment the include below and set
+# CATALOG_SYNC_TOKEN. UNVERIFIED in this repo: component version, job name and the
+# flow_directory input were read from the component README on 2026-10-10 (latest tag 0.0.32);
+# the component is pre-1.0 and its interface may change.
+#
+# include:
+#   - component: $CI_SERVER_FQDN/components/ai-catalog/catalog-sync@0.0.32
+#     inputs:
+#       flow_directory: ai-catalog/flows
+#       agent_directory: ai-catalog/agents
+#       enable_in_project: 'false'
+ai_catalog_check:
+  image: $NODE_IMAGE
+  stage: lint
+  needs: []
+  script:
+    - node scripts/ci/build-catalog-flow.mjs .gitlab/duo/flows/shakefix.yml /tmp/ai-catalog/flows
+    - test "$(wc -c < .gitlab/duo/flows/shakefix.yml)" -le 40960
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: [.gitlab/duo/flows/**/*]

@@ -1,0 +1,51 @@
+{
+  "schema": "shakefix.case/v1",
+  "iid": 11,
+  "rids": [
+    "r_20261011_5929c3"
+  ],
+  "route": "/settings",
+  "testids": [
+    "settings-name-input",
+    "settings-link"
+  ],
+  "symptom": {
+    "note": "Typed my name in Settings, went back, and the name was gone.",
+    "expectation": "",
+    "console_error": null
+  },
+  "root_cause": {
+    "file": "apps/splitpal/src/views/settings.js",
+    "line": 33,
+    "summary": "onchange saved the name under the misspelt key 'nmae', so the name was never persisted.",
+    "pattern": "misspelt-prefs-key"
+  },
+  "fix": {
+    "files": [
+      "apps/splitpal/src/views/settings.js"
+    ],
+    "lines_changed": 2,
+    "mr": 7,
+    "attempts": 1
+  },
+  "second_opinion": {
+    "intended": 1,
+    "unintended": 0,
+    "blocked_changes": []
+  },
+  "reporter_verdicts": {
+    "confirmed": 0,
+    "rejected": 0
+  },
+  "seen_before": null,
+  "lessons_applied": [],
+  "proposed_lessons": [],
+  "time_to_fix_s": 133,
+  "timestamps": {
+    "reported_at": "2026-10-11T13:35:58.199Z",
+    "operated_at": "2026-10-11T13:38:11.071Z",
+    "merged_at": "2026-10-11T16:49:50.204Z",
+    "deployed_at": "2026-10-11T17:17:02.350Z",
+    "updated_at": "2026-10-11T17:17:02.350Z"
+  }
+}

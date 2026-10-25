@@ -1,0 +1,43 @@
+# Reference Cloud Run service spec for SplitPal (Knative serving v1).
+# Terraform (cloudrun.tf) creates the service; CI deploys revisions with gcloud.
+# Use this file to inspect or recreate by hand:
+#   gcloud run services replace infra/service.yaml --region asia-south1
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: splitpal
+  labels:
+    app: shakefix
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"   # set "1" only while recording the video
+        autoscaling.knative.dev/maxScale: "2"
+        run.googleapis.com/cpu-throttling: "true"
+    spec:
+      serviceAccountName: splitpal-run@PROJECT_ID.iam.gserviceaccount.com
+      containerConcurrency: 80
+      timeoutSeconds: 60
+      containers:
+        - image: REGION-docker.pkg.dev/PROJECT_ID/shakefix/splitpal:SHORT_SHA
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SHAKEFIX_TEST_HOOKS
+              value: "0"   # "1" only on the main-test and mr-<iid> tagged revisions
+            - name: APP_VERSION
+              value: SHORT_SHA
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          startupProbe:
+            httpGet:
+              path: /healthz
+            periodSeconds: 3
+            failureThreshold: 10
+  traffic:
+    - latestRevision: true
+      percent: 100
+      tag: main

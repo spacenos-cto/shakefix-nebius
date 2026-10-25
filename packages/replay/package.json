@@ -1,0 +1,39 @@
+{
+  "name": "@shakefix/replay",
+  "version": "0.1.0",
+  "description": "replay.json → Playwright regression spec converter, plus a flow runner used by Second Opinion.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./flow-runner": "./lib/flow-runner.js",
+    "./to-spec": "./lib/to-spec.js",
+    "./plan": "./lib/plan.js"
+  },
+  "bin": {
+    "shakefix-to-spec": "./bin/to-spec.js"
+  },
+  "files": [
+    "bin",
+    "lib"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "lint": "node --check bin/to-spec.js && node --check lib/index.js"
+  },
+  "peerDependencies": {
+    "@playwright/test": ">=1.40"
+  },
+  "peerDependenciesMeta": {
+    "@playwright/test": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "vitest": "2.1.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

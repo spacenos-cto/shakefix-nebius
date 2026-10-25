@@ -1,0 +1,76 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261011_5929c3",
+  "app": {
+    "name": "splitpal",
+    "version": "c0610927",
+    "baseUrl": "https://splitpal-pzd4uebegq-uc.a.run.app"
+  },
+  "device": {
+    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+    "viewport": [
+      390,
+      844
+    ],
+    "touch": true
+  },
+  "trigger": "bubble",
+  "note": "Typed my name in Settings, went back, and the name was gone.",
+  "startRoute": "/settings",
+  "actions": [
+    {
+      "t": 0,
+      "type": "input",
+      "testid": "settings-name-input",
+      "selector": "[data-testid=\"settings-name-input\"]",
+      "route": "/settings"
+    },
+    {
+      "t": 194,
+      "type": "click",
+      "selector": "body > div:nth-of-type(1) > header > a:nth-of-type(1)",
+      "route": "/settings"
+    },
+    {
+      "t": 197,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/"
+    },
+    {
+      "t": 228,
+      "type": "click",
+      "testid": "settings-link",
+      "selector": "[data-testid=\"settings-link\"]",
+      "route": "/"
+    },
+    {
+      "t": 229,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/settings"
+    }
+  ],
+  "expectation": null,
+  "console": [],
+  "network": [
+    {
+      "method": "GET",
+      "path": "/api/session",
+      "status": 200,
+      "ms": 348
+    },
+    {
+      "method": "GET",
+      "path": "/api/bills",
+      "status": 200,
+      "ms": 330
+    },
+    {
+      "method": "GET",
+      "path": "/api/session",
+      "status": 200,
+      "ms": 589
+    }
+  ]
+}

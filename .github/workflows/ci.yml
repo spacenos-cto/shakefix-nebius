@@ -1,0 +1,25 @@
+# Unit tests for the ShakeFix workspace (the Nebius repo's always-on check).
+# The full agent/Second-Opinion/deploy pipeline is a port template under
+# templates/github/.github/workflows/shakefix.yml — it needs GCP WIF and secrets, so it is not
+# enabled here. This job runs the tests that pass with no secrets, including the Nebius/Nemotron
+# labeler tests (packages/proof/test/providers.test.js, label.test.js; packages/core/test/model.test.js).
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: corepack enable
+      - run: corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm -r --if-present test

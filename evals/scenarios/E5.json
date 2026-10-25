@@ -1,0 +1,19 @@
+{
+  "id": "E5",
+  "kind": "bug",
+  "title": "Empty state crash: list view dies when nothing is settled",
+  "class": "empty-state",
+  "evalBug": "E5",
+  "note": "home screen just says something broke",
+  "steps": {
+    "startRoute": "/",
+    "actions": []
+  },
+  "expectation": null,
+  "fix": {
+    "files": [
+      "apps/splitpal/src/views/list.js"
+    ]
+  },
+  "gitlab": false
+}

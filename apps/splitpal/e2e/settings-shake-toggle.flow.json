@@ -1,0 +1,19 @@
+{
+  "name": "settings-shake-toggle",
+  "tags": [],
+  "startRoute": "/settings",
+  "actions": [
+    {
+      "t": 0,
+      "type": "click",
+      "testid": "enable-shake-btn",
+      "selector": "[data-testid=\"enable-shake-btn\"]",
+      "route": "/settings"
+    }
+  ],
+  "expectation": {
+    "testid": "enable-shake-btn",
+    "state": "text",
+    "text": "Shake to report: On"
+  }
+}

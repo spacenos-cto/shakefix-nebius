@@ -1,0 +1,136 @@
+{
+  "schema": "shakefix.controls/v1",
+  "registered": "2026-10-16",
+  "app": "apps/carerx",
+  "main": "91c019b91029",
+  "verdicts": {
+    "GO": "gate exit 0 (shakefix::ready), Fix Confidence GO",
+    "HOLD": "gate exit 11 (needs-human), Fix Confidence HOLD",
+    "BLOCK": "gate exit 10 (shakefix::unintended), Fix Confidence BLOCK"
+  },
+  "label": "control",
+  "controls": [
+    {
+      "id": 1,
+      "branch": "control/harmless",
+      "sha": "cc40abc76226",
+      "existing": true,
+      "mr": "!11",
+      "ref": "origin/control/harmless",
+      "change": "One comment line at the top of views/home.js.",
+      "expected": "GO",
+      "rule": "gate.js evaluateGate: no policy hit, no limit violation, 0 unintended; confidence.js: regression not measured -10 → 90 ≥ FIX_CONFIDENCE_MIN 80",
+      "needs_ci": true,
+      "caveat": "origin/control/harmless is based on da1bf93, before the fixes for #15 (C2 privacy), #16 (C1 refill button) and #17 (C4 mcg). Run as-is against today's main, its head still has those bugs, which show as changes, so it will not be GO. Re-run from a copy rebased on main. (The local branch control/harmless is an older pre-rebase copy, 6033a62.)"
+    },
+    {
+      "id": 2,
+      "branch": "control/rename-refactor",
+      "sha": "6dfcb11984da",
+      "change": "Rename canRefill → hasRefillsLeft in views/rx.js; extract a refillChip() helper in views/home.js. Same DOM, same text.",
+      "expected": "GO",
+      "rule": "gate.js: no policy hit, 2 files / 13 lines within limits, 0 unintended → 90 GO",
+      "needs_ci": true
+    },
+    {
+      "id": 3,
+      "branch": "control/add-unit-test",
+      "sha": "bec9263430c6",
+      "change": "Three new unit tests in apps/carerx/test/units.test.js (money, date, strength edge cases). No app code.",
+      "expected": "GO",
+      "rule": "gate.js: no policy hit, 1 file / 15 lines, 0 unintended → 90 GO",
+      "needs_ci": true
+    },
+    {
+      "id": 4,
+      "branch": "control/formatting",
+      "sha": "48f7265a741b",
+      "change": "Reflow views/orders.js one argument per line. No string or logic changes.",
+      "expected": "GO",
+      "rule": "gate.js: no policy hit, 1 file / 13 lines, 0 unintended → 90 GO",
+      "needs_ci": true
+    },
+    {
+      "id": 5,
+      "branch": "control/dosing-unit",
+      "sha": "d2cb56bc87d3",
+      "change": "Add 'mg/mL' to the known units in src/dosing/strength.js. Nothing renders it.",
+      "expected": "HOLD",
+      "rule": "policy.yml rules: apps/carerx/src/dosing/** is supervised → gate.js policyHits → evaluateGate NEEDS_HUMAN; confidence.js -20 policy hit, holds → HOLD",
+      "needs_ci": false
+    },
+    {
+      "id": 6,
+      "branch": "control/oversized-docs",
+      "sha": "100d2ae27842",
+      "change": "Two-line header comment on all six files in src/views/. Comment-only.",
+      "expected": "HOLD",
+      "rule": "policy.yml limits.max_files_changed 5; 6 files → gate.js limitViolations → NEEDS_HUMAN; confidence.js -10 limit violation, holds → HOLD",
+      "needs_ci": false
+    },
+    {
+      "id": 7,
+      "branch": "control/add-dependency",
+      "sha": "c6cf6e5eb738",
+      "change": "Validate the PATCH /api/me/privacy body with zod (new dependency in apps/carerx/package.json + pnpm-lock.yaml). Same result for every valid body.",
+      "expected": "HOLD",
+      "rule": "policy.yml limits.forbid_new_dependencies; gate.js LOCKFILES: pnpm-lock.yaml changed → limitViolations → NEEDS_HUMAN; confidence.js HOLD",
+      "needs_ci": false
+    },
+    {
+      "id": 8,
+      "branch": "control/planted-bad",
+      "sha": "aee0ccba16bd",
+      "existing": true,
+      "mr": "!10",
+      "ref": "origin/control/planted-bad",
+      "change": "Drops the cents from every price (formatUsd). On the remote branch the C3 double-charge fix is already in its base, so the cents bug is its only own change.",
+      "expected": "BLOCK",
+      "rule": "gate.js: unintended > 0 with proof.block_on_unintended on attempt 1 → UNINTENDED (exit 10); confidence.js unintended → blocker",
+      "needs_ci": true,
+      "caveat": "Based on da1bf93 like #1: the head also still has C1, C2 and C4, so it would BLOCK for extra reasons. Re-run from a copy rebased on main so the cents bug is the only difference. (Local control/planted-bad is an older pre-rebase copy, e470053.)"
+    },
+    {
+      "id": 9,
+      "branch": "control/api-date-only",
+      "sha": "0656197a09f9",
+      "change": "\"Fix\" a time-zone date bug: present() sends lastFilled as YYYY-MM-DD instead of an ISO timestamp.",
+      "expected": "BLOCK",
+      "rule": "Screen text is identical (formatDay gives '12 Sep 2026' for both). diff.js API channel: $[i].lastFilled changes on GET /api/prescriptions and /api/prescriptions/:id; no replay context → label.js rule 'unintended' → gate exit 10",
+      "needs_ci": true
+    },
+    {
+      "id": 10,
+      "branch": "control/db-extra-write",
+      "sha": "3378892dec7c",
+      "change": "\"Fix\" the refill reminder by marking a prescription seen: GET /api/prescriptions/:id now writes seenByPatient to the prescriptions table.",
+      "expected": "BLOCK",
+      "rule": "diff.js DB channel: new 'update prescriptions' audit row on a read (plus seenByPatient in API bodies) → unintended → gate exit 10",
+      "needs_ci": true
+    },
+    {
+      "id": 11,
+      "branch": "control/privacy-default",
+      "sha": "0c78dd4beb77",
+      "change": "\"Fix\" missing privacy keys on old sessions by merging defaults in GET /api/me, with the spread order reversed: { ...stored, ...seed } so the seed default (share: on) always wins.",
+      "expected": "BLOCK",
+      "rule": "privacy-opt-out flow: after reload privacy-status reads 'shared' on head vs 'not shared' on base (screen + API $.privacy.shareHealthData) → unintended → gate exit 10",
+      "needs_ci": true
+    },
+    {
+      "id": 12,
+      "branch": "control/no-refills-copy",
+      "sha": "5b11636ec1b4",
+      "change": "\"Friendlier\" out-of-refills notice on /rx/:id: 'We will ask your doctor for a new prescription.' CareRx does no such thing.",
+      "expected": "BLOCK",
+      "rule": "no-refills-left flow: testid no-refills text changes on /rx/4, a screen no report touched → unintended → gate exit 10",
+      "needs_ci": true
+    }
+  ],
+  "scoring": {
+    "GO": "pass only if the gate exits 0 (Fix Confidence GO). Anything else is a false alarm.",
+    "HOLD": "pass if the gate exits 11 (needs-human) for the stated policy or limit reason. A GO is a miss.",
+    "BLOCK": "pass if the change is NOT merged and Second Opinion reports at least one unintended change: gate exit 10 (BLOCK, back to surgery) or exit 11 because the model disputed the rules' label (a human decides). A GO is a miss.",
+    "headline": "Misses (a bad change that would auto-merge) and false alarms (a harmless change held) are reported separately."
+  }
+}

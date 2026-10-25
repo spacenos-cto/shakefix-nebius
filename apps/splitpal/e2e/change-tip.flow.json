@@ -1,0 +1,28 @@
+{
+  "name": "change-tip",
+  "tags": [],
+  "startRoute": "/bill/9",
+  "actions": [
+    {
+      "t": 0,
+      "type": "change",
+      "testid": "tip-select",
+      "selector": "[data-testid=\"tip-select\"]",
+      "value": "5",
+      "route": "/bill/9"
+    },
+    {
+      "t": 600,
+      "type": "change",
+      "testid": "tip-select",
+      "selector": "[data-testid=\"tip-select\"]",
+      "value": "10",
+      "route": "/bill/9"
+    }
+  ],
+  "expectation": {
+    "testid": "tip-total",
+    "state": "text",
+    "text": "₹49.99"
+  }
+}

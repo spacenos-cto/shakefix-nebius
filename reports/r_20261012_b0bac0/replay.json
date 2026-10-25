@@ -1,0 +1,31 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261012_b0bac0",
+  "app": {
+    "name": "carerx",
+    "version": "e4975911",
+    "baseUrl": "https://carerx-pzd4uebegq-uc.a.run.app"
+  },
+  "device": {
+    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+    "viewport": [
+      390,
+      844
+    ],
+    "touch": true
+  },
+  "trigger": "bubble",
+  "note": "My thyroid pill says 50 mg but the bottle says 50 mcg. Which is it?",
+  "startRoute": "/rx/2",
+  "actions": [],
+  "expectation": null,
+  "console": [],
+  "network": [
+    {
+      "method": "GET",
+      "path": "/api/prescriptions/2",
+      "status": 200,
+      "ms": 318
+    }
+  ]
+}

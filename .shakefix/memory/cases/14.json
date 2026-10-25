@@ -1,0 +1,51 @@
+{
+  "schema": "shakefix.case/v1",
+  "iid": 14,
+  "rids": [
+    "r_20261012_3d080f"
+  ],
+  "route": "/orders/:id",
+  "testids": [
+    "refill-btn",
+    "pay-btn"
+  ],
+  "symptom": {
+    "note": "I paid my $12 copay for my heart pills once and it charged me $24.",
+    "expectation": "",
+    "console_error": null
+  },
+  "root_cause": {
+    "file": "apps/carerx/src/views/refill.js",
+    "line": 34,
+    "summary": "the pay button had an onclick that called pay() on top of the form submit handler, so one tap sent two refill requests and charged the copay twice.",
+    "pattern": "double-submit-handler"
+  },
+  "fix": {
+    "files": [
+      "apps/carerx/src/views/refill.js"
+    ],
+    "lines_changed": 3,
+    "mr": 12,
+    "attempts": 1
+  },
+  "second_opinion": {
+    "intended": 53,
+    "unintended": 0,
+    "blocked_changes": []
+  },
+  "reporter_verdicts": {
+    "confirmed": 0,
+    "rejected": 0
+  },
+  "seen_before": null,
+  "lessons_applied": [],
+  "proposed_lessons": [],
+  "time_to_fix_s": 255,
+  "timestamps": {
+    "reported_at": "2026-10-12T08:21:04.381Z",
+    "operated_at": "2026-10-12T08:25:19.703Z",
+    "merged_at": "2026-10-12T08:34:00.513Z",
+    "deployed_at": "2026-10-12T08:45:51.765Z",
+    "updated_at": "2026-10-12T08:45:51.765Z"
+  }
+}

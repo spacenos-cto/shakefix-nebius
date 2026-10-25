@@ -1,0 +1,38 @@
+{
+  "name": "@shakefix/core",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "ShakeFix provider switch: SCM (GitLab | GitHub), model (Anthropic | OpenAI-compatible | none) and agent runner (Duo | local).",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./scm": "./src/scm/index.js",
+    "./model": "./src/model/index.js",
+    "./agent": "./src/agent/index.js",
+    "./prompts": "./src/prompts.js",
+    "./memory": "./src/memory/index.js",
+    "./src/*": "./src/*"
+  },
+  "bin": {
+    "shakefix-agent": "./bin/shakefix-agent.js",
+    "shakefix-scm": "./bin/shakefix-scm.js",
+    "shakefix-memory": "./bin/shakefix-memory.js",
+    "shakefix-blast": "./bin/shakefix-blast.js"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "lint": "node --check bin/shakefix-agent.js && node --check bin/shakefix-scm.js && node --check bin/shakefix-memory.js && node --check bin/shakefix-blast.js && node --check src/index.js"
+  },
+  "devDependencies": {
+    "vitest": "2.1.4"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

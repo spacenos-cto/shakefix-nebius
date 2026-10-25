@@ -1,0 +1,12 @@
+{
+  "name": "thyroid-strength",
+  "tags": [],
+  "expectFailUntilFixed": "C4",
+  "startRoute": "/rx/2",
+  "actions": [],
+  "expectation": {
+    "testid": "rx-strength",
+    "state": "text",
+    "text": "50 mcg"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "B4",
+  "kind": "bug",
+  "title": "Session expires an hour early (auth/, supervised)",
+  "class": "off-by-one",
+  "evalBug": null,
+  "note": "it says my session expired but I logged in this morning",
+  "steps": {
+    "startRoute": "/settings?now=2026-10-11T11:30:00Z",
+    "actions": []
+  },
+  "expectation": {
+    "testid": "session-status",
+    "state": "text",
+    "text": "Signed in as Asha · session expires in 0h 30m"
+  },
+  "fix": {
+    "files": [
+      "apps/splitpal/src/auth/session.js"
+    ],
+    "supervised": true
+  },
+  "gitlab": true
+}

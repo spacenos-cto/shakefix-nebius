@@ -1,0 +1,18 @@
+# Platform-enforced half of the ShakeFix policy (.shakefix/policy.yml).
+# Turn on "Require approval from code owners" for the protected branch `main`.
+# Note: MRs opened by the flow are attributed to the triggering human, and authors cannot
+# approve their own MRs. Add a second account here for the C4 (dosing) and B4 (auth) demos to be approvable.
+
+[Medication information (pharmacist)] @cto.spacenos
+apps/carerx/src/dosing/**
+
+[Authentication] @cto.spacenos
+apps/splitpal/src/auth/**
+
+[Infrastructure] @cto.spacenos
+infra/**
+
+[Governance] @cto.spacenos
+.shakefix/policy.yml
+CODEOWNERS
+.gitlab/duo/

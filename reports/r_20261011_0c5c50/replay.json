@@ -1,0 +1,88 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261011_0c5c50",
+  "app": {
+    "name": "splitpal",
+    "version": "c01eb355",
+    "baseUrl": "https://splitpal-pzd4uebegq-uc.a.run.app"
+  },
+  "device": {
+    "ua": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Mobile Safari/537.36",
+    "viewport": [
+      411,
+      806
+    ],
+    "touch": true
+  },
+  "trigger": "bubble",
+  "note": "Make it free",
+  "startRoute": "/",
+  "actions": [
+    {
+      "t": 0,
+      "type": "click",
+      "selector": "#app",
+      "route": "/"
+    },
+    {
+      "t": 1473,
+      "type": "click",
+      "selector": "body > div:nth-of-type(1)",
+      "route": "/"
+    },
+    {
+      "t": 3821,
+      "type": "click",
+      "testid": "bill-row-3",
+      "selector": "[data-testid=\"bill-row-3\"]",
+      "route": "/"
+    },
+    {
+      "t": 3822,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/bill/3"
+    },
+    {
+      "t": 8934,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/"
+    },
+    {
+      "t": 244489,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/"
+    },
+    {
+      "t": 250499,
+      "type": "click",
+      "testid": "bill-row-7",
+      "selector": "[data-testid=\"bill-row-7\"]",
+      "route": "/"
+    },
+    {
+      "t": 250500,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/bill/7"
+    }
+  ],
+  "expectation": null,
+  "console": [],
+  "network": [
+    {
+      "method": "GET",
+      "path": "/api/bills",
+      "status": 200,
+      "ms": 314
+    },
+    {
+      "method": "GET",
+      "path": "/api/bills/7",
+      "status": 200,
+      "ms": 324
+    }
+  ]
+}

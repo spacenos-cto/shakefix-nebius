@@ -1,0 +1,27 @@
+{
+  "name": "open-prescription",
+  "tags": [
+    "smoke"
+  ],
+  "startRoute": "/",
+  "actions": [
+    {
+      "t": 0,
+      "type": "click",
+      "testid": "rx-row-1",
+      "selector": "[data-testid=\"rx-row-1\"]",
+      "route": "/"
+    },
+    {
+      "t": 300,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/rx/1"
+    }
+  ],
+  "expectation": {
+    "testid": "rx-name",
+    "state": "text",
+    "text": "Metoprolol succinate"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261011_9aa746",
+  "app": {
+    "name": "splitpal",
+    "version": "c0610927",
+    "baseUrl": "https://splitpal-pzd4uebegq-uc.a.run.app"
+  },
+  "device": {
+    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+    "viewport": [
+      390,
+      844
+    ],
+    "touch": true
+  },
+  "trigger": "bubble",
+  "note": "There is no 20% tip option, it stops at 15%.",
+  "startRoute": "/bill/3",
+  "actions": [],
+  "expectation": null,
+  "console": [],
+  "network": [
+    {
+      "method": "GET",
+      "path": "/api/bills/3",
+      "status": 200,
+      "ms": 372
+    }
+  ]
+}

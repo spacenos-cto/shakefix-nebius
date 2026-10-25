@@ -1,0 +1,25 @@
+# ShakeFix autonomy policy (BUILD_SPEC 15.1).
+# Read by: the Attending agent (policy_hits), scripts/ci/proof-gate.sh and scripts/ci/merge.sh
+# (via `node packages/proof/bin/proof.js gate`), and mirrored by CODEOWNERS.
+version: 1
+autonomy_default: hands-off          # hands-off | supervised | assisted
+rules:
+  - match: "apps/carerx/src/dosing/**"
+    autonomy: supervised             # medication information: a pharmacist approves, never auto-merged
+    reason: "Medication strength and dosing text can harm a patient. A pharmacist must approve."
+  - match: "apps/splitpal/src/auth/**"
+    autonomy: supervised             # MR opens; human must approve; no auto-merge
+    reason: "Authentication changes always need a human."
+  - match: "infra/**"
+    autonomy: assisted               # agents propose only; no commits
+    reason: "Infrastructure is changed by humans through Terraform."
+  - match: "**/*.sql"
+    autonomy: supervised
+    reason: "Schema and data changes need a human."
+limits:
+  max_files_changed: 5
+  max_lines_changed: 60
+  forbid_new_dependencies: true
+proof:
+  block_on_unintended: true
+  max_reoperations: 1

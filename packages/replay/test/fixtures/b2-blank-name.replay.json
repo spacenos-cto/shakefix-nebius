@@ -1,0 +1,24 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261012_c0ffee",
+  "app": { "name": "splitpal", "version": "a1b2c3d", "baseUrl": "https://splitpal.example.run.app" },
+  "device": { "ua": "Mozilla/5.0 (Linux; Android 15; Pixel 9)", "viewport": [412, 915], "touch": true },
+  "trigger": "auto-error",
+  "note": "app went blank */ after I saved\nwith an empty name",
+  "startRoute": "/settings",
+  "actions": [
+    { "t": 0, "type": "navigate", "selector": "window", "route": "/" },
+    { "t": 500, "type": "click", "testid": "new-bill-btn", "selector": "[data-testid=\"new-bill-btn\"]", "route": "/" },
+    { "t": 560, "type": "navigate", "selector": "window", "route": "/bill/new" },
+    { "t": 1200, "type": "input", "testid": "title-input", "selector": "[data-testid=\"title-input\"]", "value": "Lunch \"team\"", "route": "/bill/new" },
+    { "t": 1800, "type": "input", "selector": "#notes", "route": "/bill/new" },
+    { "t": 2300, "type": "input", "testid": "total-input", "selector": "[data-testid=\"total-input\"]", "value": "90", "route": "/bill/new" },
+    { "t": 2900, "type": "input", "testid": "person-input-0", "selector": "[data-testid=\"person-input-0\"]", "value": "", "route": "/bill/new" },
+    { "t": 3300, "type": "change", "selector": "#split-even", "value": "true", "route": "/bill/new" },
+    { "t": 3600, "type": "submit", "selector": "main > form", "route": "/bill/new" },
+    { "t": 3700, "type": "navigate", "selector": "window", "route": "/bill/k3x9a2" }
+  ],
+  "expectation": null,
+  "console": [ { "level": "error", "msg": "TypeError: Cannot read properties of undefined (reading 'toUpperCase')", "stack": "TypeError: ...\n    at renderShares (split.ts:42)" } ],
+  "network": [ { "method": "POST", "path": "/api/bills", "status": 201, "ms": 30 } ]
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261011_8f3a2b",
+  "app": { "name": "splitpal", "version": "a1b2c3d", "baseUrl": "https://splitpal.example.run.app" },
+  "device": { "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)", "viewport": [390, 844], "touch": true },
+  "trigger": "shake",
+  "note": "settle button does nothing",
+  "startRoute": "/",
+  "actions": [
+    { "t": 0, "type": "click", "testid": "new-bill-btn", "selector": "[data-testid=\"new-bill-btn\"]", "route": "/" },
+    { "t": 40, "type": "navigate", "selector": "window", "route": "/bill/new" },
+    { "t": 900, "type": "input", "testid": "title-input", "selector": "[data-testid=\"title-input\"]", "value": "Dinner", "route": "/bill/new" },
+    { "t": 1700, "type": "input", "testid": "total-input", "selector": "[data-testid=\"total-input\"]", "value": "1000", "route": "/bill/new" },
+    { "t": 2400, "type": "input", "testid": "person-input-0", "selector": "[data-testid=\"person-input-0\"]", "value": "Asha", "route": "/bill/new" },
+    { "t": 3000, "type": "click", "testid": "add-person-btn", "selector": "[data-testid=\"add-person-btn\"]", "route": "/bill/new" },
+    { "t": 3500, "type": "input", "testid": "person-input-1", "selector": "[data-testid=\"person-input-1\"]", "value": "Ben", "route": "/bill/new" },
+    { "t": 4100, "type": "click", "testid": "add-person-btn", "selector": "[data-testid=\"add-person-btn\"]", "route": "/bill/new" },
+    { "t": 4600, "type": "input", "testid": "person-input-2", "selector": "[data-testid=\"person-input-2\"]", "value": "Chen", "route": "/bill/new" },
+    { "t": 5200, "type": "click", "testid": "save-bill-btn", "selector": "[data-testid=\"save-bill-btn\"]", "route": "/bill/new" },
+    { "t": 5260, "type": "submit", "selector": "form", "route": "/bill/new" },
+    { "t": 5300, "type": "navigate", "selector": "window", "route": "/bill/7" },
+    { "t": 6100, "type": "change", "testid": "tip-select", "selector": "[data-testid=\"tip-select\"]", "value": "10", "route": "/bill/7" },
+    { "t": 7000, "type": "click", "testid": "settle-btn", "selector": "[data-testid=\"settle-btn\"]", "route": "/bill/7" },
+    { "t": 7050, "type": "navigate", "selector": "window", "route": "/bill/7/settle" },
+    { "t": 8000, "type": "click", "testid": "confirm-settle-btn", "selector": "[data-testid=\"confirm-settle-btn\"]", "route": "/bill/7/settle" }
+  ],
+  "expectation": { "testid": "settled-banner", "state": "visible" },
+  "console": [],
+  "network": [
+    { "method": "POST", "path": "/api/bills", "status": 201, "ms": 38 },
+    { "method": "POST", "path": "/api/bills/7/settle", "status": 200, "ms": 41 }
+  ]
+}

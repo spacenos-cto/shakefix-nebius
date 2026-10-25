@@ -1,0 +1,49 @@
+{
+  "name": "settle",
+  "tags": [
+    "smoke"
+  ],
+  "expectFailUntilFixed": "B1",
+  "startRoute": "/bill/7",
+  "actions": [
+    {
+      "t": 0,
+      "type": "click",
+      "testid": "settle-btn",
+      "selector": "[data-testid=\"settle-btn\"]",
+      "route": "/bill/7"
+    },
+    {
+      "t": 500,
+      "type": "click",
+      "testid": "pay-Asha-btn",
+      "selector": "[data-testid=\"pay-Asha-btn\"]",
+      "route": "/bill/7/settle"
+    },
+    {
+      "t": 900,
+      "type": "click",
+      "testid": "pay-Ben-btn",
+      "selector": "[data-testid=\"pay-Ben-btn\"]",
+      "route": "/bill/7/settle"
+    },
+    {
+      "t": 1300,
+      "type": "click",
+      "testid": "pay-Chen-btn",
+      "selector": "[data-testid=\"pay-Chen-btn\"]",
+      "route": "/bill/7/settle"
+    },
+    {
+      "t": 1700,
+      "type": "click",
+      "testid": "confirm-settle-btn",
+      "selector": "[data-testid=\"confirm-settle-btn\"]",
+      "route": "/bill/7/settle"
+    }
+  ],
+  "expectation": {
+    "testid": "settled-banner",
+    "state": "visible"
+  }
+}

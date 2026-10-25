@@ -1,0 +1,6 @@
+# The repo-root .gitignore ignores every `public/` directory; SplitPal's public/ holds the
+# PWA manifest, service worker and icons, so re-include it here.
+!public/
+!public/**
+# Copied in by CI from packages/sdk/dist; never commit the built SDK here.
+public/shakefix-sdk.js

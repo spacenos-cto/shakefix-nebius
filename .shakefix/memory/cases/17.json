@@ -1,0 +1,48 @@
+{
+  "schema": "shakefix.case/v1",
+  "iid": 17,
+  "rids": [
+    "r_20261012_b0bac0"
+  ],
+  "route": "/rx/:id",
+  "testids": [],
+  "symptom": {
+    "note": "My thyroid pill says 50 mg but the bottle says 50 mcg. Which is it?",
+    "expectation": "",
+    "console_error": null
+  },
+  "root_cause": {
+    "file": "apps/carerx/src/dosing/strength.js",
+    "line": 14,
+    "summary": "formatStrength mapped the mcg unit to mg, so 50 mcg displayed as 50 mg.",
+    "pattern": "unit-display-mismatch"
+  },
+  "fix": {
+    "files": [
+      "apps/carerx/src/dosing/strength.js"
+    ],
+    "lines_changed": 3,
+    "mr": 15,
+    "attempts": 1
+  },
+  "second_opinion": {
+    "intended": 8,
+    "unintended": 0,
+    "blocked_changes": []
+  },
+  "reporter_verdicts": {
+    "confirmed": 0,
+    "rejected": 0
+  },
+  "seen_before": 16,
+  "lessons_applied": [],
+  "proposed_lessons": [],
+  "time_to_fix_s": 171,
+  "timestamps": {
+    "reported_at": "2026-10-12T09:36:06.394Z",
+    "operated_at": "2026-10-12T09:38:57.455Z",
+    "merged_at": "2026-10-12T10:08:38.167Z",
+    "deployed_at": "2026-10-12T10:13:58.986Z",
+    "updated_at": "2026-10-12T10:13:58.986Z"
+  }
+}

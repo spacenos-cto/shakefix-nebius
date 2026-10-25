@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="ShakeFix ER Board: shake reports moving from triage to discharge and the reporter's verdict." />
+    <title>ShakeFix ER Board</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23111110'/><path d='M8 16h5l2-6 3 12 2-6h4' stroke='%23ff5a1f' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <svg class="pulse" viewBox="0 0 64 24" aria-hidden="true"><path d="M0 12h16l4-9 6 18 5-14 3 5h30" /></svg>
+        <div>
+          <h1>ShakeFix <span>ER Board</span></h1>
+          <p class="sub">Users report bugs. Agents fix them. Second Opinion makes sure the fix didn't break anything else.</p>
+        </div>
+      </div>
+      <div class="status">
+        <div class="modes" role="group" aria-label="View options">
+          <button type="button" id="btn-explain" class="mode-btn" aria-pressed="false" title="Plain-English notes on every step">Explain</button>
+          <button type="button" id="btn-visual" class="mode-btn" aria-pressed="false" title="Show the board as one patient journey">Visual</button>
+        </div>
+        <a class="mode-btn" href="./judges.html" style="text-decoration:none">For judges</a>
+        <span id="demo-label" class="chip demo" hidden>DEMO REPLAY</span>
+        <span id="mode" class="chip">connecting…</span>
+        <span id="updated" class="mono dim"></span>
+      </div>
+    </header>
+
+    <nav class="tabbar" aria-label="Mission Control">
+      <span class="tabbar-kicker mono" aria-hidden="true">MISSION CONTROL</span>
+      <div class="tabs" role="tablist" aria-label="Board views" id="tabs"></div>
+    </nav>
+
+    <div class="tabpanel" id="panel-patients" role="tabpanel" aria-labelledby="tab-patients" tabindex="-1">
+    <section class="metrics" aria-label="Headline metrics">
+      <article class="metric">
+        <h2>Median shake → fixed</h2>
+        <p class="big" id="m-median">—</p>
+        <p class="dim mono" id="m-last">last: —</p>
+      </article>
+      <article class="metric">
+        <h2>Hands-off</h2>
+        <p class="big" id="m-handsoff">—</p>
+        <p class="dim mono" id="m-handsoff-sub">of finished cases</p>
+      </article>
+      <article class="metric accent">
+        <h2>Unintended changes caught</h2>
+        <p class="big" id="m-unintended">—</p>
+        <p class="dim mono">by Second Opinion, before merge</p>
+      </article>
+      <article class="metric">
+        <h2>Fixes confirmed by reporter</h2>
+        <p class="big" id="m-confirmed">—</p>
+        <p class="dim mono" id="m-confirmed-sub">the patient's verdict</p>
+      </article>
+      <article class="metric">
+        <h2>Rollbacks</h2>
+        <p class="big" id="m-rollbacks">—</p>
+        <p class="dim mono">auto, on failed smoke</p>
+      </article>
+    </section>
+
+    <section class="explain-intro" id="explain-intro" hidden aria-label="How to read this board">
+      <p><strong>New to devops? Read this board like an ER.</strong> Each card is a bug ("patient") a user reported by shaking their phone.
+        It moves left to right: diagnosed, fixed, double-checked, shipped, confirmed. Every step is a check that would
+        otherwise be a human chore, or a 2am incident. Nobody has to know CI/CD: the robot runs the process, you read the result.</p>
+      <p class="dim"><strong>Visual</strong> mode shows the whole journey as one track. Tap any step to see what it does and what it prevents.</p>
+    </section>
+
+    <section class="journey" id="journey" hidden aria-label="Patient journey">
+      <ol class="track" id="track"></ol>
+      <div class="offramp" id="offramp"></div>
+      <div class="phase-info" id="phase-info" aria-live="polite"></div>
+    </section>
+
+    <section class="case" id="case" aria-label="Case timeline" hidden>
+      <header class="case-head">
+        <div>
+          <h2 id="case-title">Case</h2>
+          <p class="dim mono" id="case-links"></p>
+        </div>
+        <button type="button" class="close" id="case-close" aria-label="Close timeline">×</button>
+      </header>
+      <p class="stopwatch mono" id="stopwatch" aria-live="off">—</p>
+      <p class="story explain-only" id="case-story"></p>
+      <ol class="stages" id="stages"></ol>
+      <p class="dim mono small" id="case-note"></p>
+    </section>
+
+    <main class="layout">
+      <section class="board" id="board" aria-label="Board columns"></section>
+      <aside class="side">
+      <section class="records panel" aria-label="Medical Records">
+        <h2>Medical Records <span class="dim">· memory</span></h2>
+        <p class="speedup" id="speedup">—</p>
+        <h3>Hotspots</h3>
+        <ul id="hotspots" class="patterns"></ul>
+        <h3>Lessons learned</h3>
+        <ol id="lessons" class="lessons"></ol>
+      </section>
+      <section class="ledger panel" aria-label="Bug Ledger">
+        <h2>Ledger <span class="dim">· recurring patterns</span></h2>
+        <ul id="patterns" class="patterns"></ul>
+        <h3>Recent entries</h3>
+        <ol id="entries" class="entries"></ol>
+      </section>
+      </aside>
+    </main>
+    </div>
+
+    <div class="tabpanel" id="panel-feed" role="tabpanel" aria-labelledby="tab-feed" tabindex="-1" hidden>
+      <section class="mc">
+        <header class="mc-head">
+          <div>
+            <h2><span class="live-dot" aria-hidden="true"></span> Live feed</h2>
+            <p class="dim">Every step of every case, newest on top. Each line says what just happened in plain English.</p>
+          </div>
+          <p class="mono dim small" id="feed-meta"></p>
+        </header>
+        <ol class="feed" id="feed" aria-label="Stage events, newest first"></ol>
+      </section>
+    </div>
+
+    <div class="tabpanel" id="panel-opinion" role="tabpanel" aria-labelledby="tab-opinion" tabindex="-1" hidden>
+      <section class="mc">
+        <header class="mc-head">
+          <div>
+            <h2>Second Opinion</h2>
+            <p class="dim">Before a fix ships, the robot replays real user flows on the old and new app and sorts every difference:
+              <em class="ok">intended</em> (the bug is gone), <em class="bad">unintended</em> (something else changed), or
+              <em class="flaky">flaky</em> (it did not repeat).</p>
+          </div>
+          <ul class="legend" aria-label="Legend">
+            <li><span class="swatch intended"></span>Intended</li>
+            <li><span class="swatch unintended"></span>Unintended</li>
+            <li><span class="swatch flaky"></span>Flaky</li>
+          </ul>
+        </header>
+        <p class="mono small" id="opinion-totals"></p>
+        <ol class="bars" id="opinion-bars" aria-label="Second Opinion result per case"></ol>
+      </section>
+      <section class="mc">
+        <header class="mc-head">
+          <div>
+            <h2>Controls scorecard</h2>
+            <p class="dim">Planted-bad, harmless and real-fix merge requests with a known right answer. Second Opinion should block the bad ones and pass the rest.</p>
+          </div>
+        </header>
+        <div id="controls"></div>
+      </section>
+    </div>
+
+    <div class="tabpanel" id="panel-receipts" role="tabpanel" aria-labelledby="tab-receipts" tabindex="-1" hidden>
+      <section class="mc">
+        <header class="mc-head">
+          <div>
+            <h2>Receipts</h2>
+            <p class="dim">Every discharged case: where to check it, how long it took, and how many people had to touch it.</p>
+          </div>
+          <p class="mono dim small" id="receipts-meta"></p>
+        </header>
+        <div id="receipts"></div>
+      </section>
+    </div>
+
+    <div class="tabpanel" id="panel-numbers" role="tabpanel" aria-labelledby="tab-numbers" tabindex="-1" hidden>
+      <section class="tiles" aria-label="Headline numbers">
+        <article class="tile accent">
+          <h2>Median shake → live</h2>
+          <p class="huge mono" id="n-median" data-format="duration">—</p>
+          <p class="dim mono small" id="n-median-sub"></p>
+        </article>
+        <article class="tile">
+          <h2>Hands-off share</h2>
+          <p class="huge mono" id="n-handsoff" data-format="pct">—</p>
+          <p class="dim mono small" id="n-handsoff-sub"></p>
+        </article>
+        <article class="tile">
+          <h2>Unintended changes caught</h2>
+          <p class="huge mono" id="n-unintended" data-format="int">—</p>
+          <p class="dim mono small" id="n-unintended-sub"></p>
+        </article>
+        <article class="tile">
+          <h2>Rollbacks</h2>
+          <p class="huge mono" id="n-rollbacks" data-format="int">—</p>
+          <p class="dim mono small">automatic, on a failed health check</p>
+        </article>
+      </section>
+      <section class="mc spark-card">
+        <header class="mc-head">
+          <div>
+            <h2>Shake → live, per case</h2>
+            <p class="dim">One dot per discharged case, oldest on the left. Lower is faster.</p>
+          </div>
+          <p class="mono dim small" id="spark-range"></p>
+        </header>
+        <div id="spark"></div>
+      </section>
+    </div>
+
+    <footer class="foot mono dim">
+      <span>Refreshes every 5 s · tap a card for its timeline · MIT</span>
+      <span id="badge-hint"></span>
+      <span id="source"></span>
+    </footer>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

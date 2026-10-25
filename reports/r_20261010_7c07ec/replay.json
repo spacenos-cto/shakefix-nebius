@@ -1,0 +1,57 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261010_7c07ec",
+  "app": {
+    "name": "splitpal",
+    "version": "ebc3f121",
+    "baseUrl": "https://splitpal-pzd4uebegq-uc.a.run.app"
+  },
+  "device": {
+    "ua": "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/130 Mobile Safari/537.36",
+    "viewport": [
+      390,
+      844
+    ],
+    "touch": true
+  },
+  "trigger": "shake",
+  "note": "switched to USD but total still shows rupees",
+  "startRoute": "/",
+  "actions": [
+    {
+      "t": 0,
+      "type": "click",
+      "testid": "bill-row-3",
+      "selector": "[data-testid=\"bill-row-3\"]",
+      "route": "/"
+    },
+    {
+      "t": 300,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/bill/3"
+    },
+    {
+      "t": 1400,
+      "type": "change",
+      "testid": "currency-select",
+      "selector": "[data-testid=\"currency-select\"]",
+      "value": "USD",
+      "route": "/bill/3"
+    }
+  ],
+  "expectation": {
+    "testid": "bill-total",
+    "state": "text",
+    "text": "$1,200.00"
+  },
+  "console": [],
+  "network": [
+    {
+      "method": "PATCH",
+      "path": "/api/bills/3",
+      "status": 200,
+      "ms": 41
+    }
+  ]
+}

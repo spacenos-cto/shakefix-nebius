@@ -1,0 +1,83 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261011_b1d3e0",
+  "app": {
+    "name": "splitpal",
+    "version": "dev",
+    "baseUrl": "http://localhost:8080"
+  },
+  "device": {
+    "ua": "Mozilla/5.0 (Linux; Android 14) Chrome/130 Mobile",
+    "viewport": [
+      390,
+      844
+    ],
+    "touch": true
+  },
+  "trigger": "shake",
+  "note": "settle button does nothing",
+  "startRoute": "/",
+  "actions": [
+    {
+      "t": 0,
+      "type": "click",
+      "testid": "bill-row-7",
+      "selector": "[data-testid=\"bill-row-7\"]",
+      "route": "/"
+    },
+    {
+      "t": 300,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/bill/7"
+    },
+    {
+      "t": 800,
+      "type": "click",
+      "testid": "settle-btn",
+      "selector": "[data-testid=\"settle-btn\"]",
+      "route": "/bill/7"
+    },
+    {
+      "t": 1300,
+      "type": "click",
+      "testid": "pay-Asha-btn",
+      "selector": "[data-testid=\"pay-Asha-btn\"]",
+      "route": "/bill/7/settle"
+    },
+    {
+      "t": 1700,
+      "type": "click",
+      "testid": "pay-Ben-btn",
+      "selector": "[data-testid=\"pay-Ben-btn\"]",
+      "route": "/bill/7/settle"
+    },
+    {
+      "t": 2100,
+      "type": "click",
+      "testid": "pay-Chen-btn",
+      "selector": "[data-testid=\"pay-Chen-btn\"]",
+      "route": "/bill/7/settle"
+    },
+    {
+      "t": 2500,
+      "type": "click",
+      "testid": "confirm-settle-btn",
+      "selector": "[data-testid=\"confirm-settle-btn\"]",
+      "route": "/bill/7/settle"
+    }
+  ],
+  "expectation": {
+    "testid": "settled-banner",
+    "state": "visible"
+  },
+  "console": [],
+  "network": [
+    {
+      "method": "POST",
+      "path": "/api/bills/7/settle",
+      "status": 200,
+      "ms": 38
+    }
+  ]
+}

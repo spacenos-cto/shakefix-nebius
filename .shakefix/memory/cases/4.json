@@ -1,0 +1,58 @@
+{
+  "schema": "shakefix.case/v1",
+  "iid": 4,
+  "rids": [
+    "r_20261011_b1d3e0"
+  ],
+  "route": "/bill/:id/settle",
+  "testids": [
+    "bill-row-7",
+    "settle-btn",
+    "pay-Asha-btn",
+    "pay-Ben-btn",
+    "pay-Chen-btn",
+    "confirm-settle-btn",
+    "settled-banner"
+  ],
+  "symptom": {
+    "note": "settle button does nothing",
+    "expectation": "settled-banner visible",
+    "console_error": null
+  },
+  "root_cause": {
+    "file": "apps/splitpal/src/lib/split.js",
+    "line": 17,
+    "summary": "splitEvenly truncates each share, so 1000/3 pays 999.99 and isFullySettled never sees the full total (remainder cent dropped)",
+    "pattern": "money-rounding"
+  },
+  "fix": {
+    "files": [
+      "apps/splitpal/src/lib/split.js"
+    ],
+    "lines_changed": 14,
+    "mr": 1,
+    "attempts": 1
+  },
+  "second_opinion": {
+    "intended": null,
+    "unintended": null,
+    "blocked_changes": [
+      "(local dev run 2026-10-10, naive roundMoney fix) /bill/9 · tip-total: ₹49.99 -> ₹50.00"
+    ]
+  },
+  "reporter_verdicts": {
+    "confirmed": 0,
+    "rejected": 0
+  },
+  "seen_before": null,
+  "lessons_applied": [],
+  "proposed_lessons": [],
+  "time_to_fix_s": 447,
+  "timestamps": {
+    "reported_at": "2026-10-10T08:39:55Z",
+    "operated_at": "2026-10-10T08:47:22Z",
+    "merged_at": null,
+    "deployed_at": null,
+    "updated_at": "2026-10-10T08:47:22Z"
+  }
+}

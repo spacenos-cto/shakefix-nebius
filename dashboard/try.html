@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Try ShakeFix: use the live demo app, shake the phone when something breaks, and watch AI agents fix it." />
+    <title>Try ShakeFix</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23111110'/><path d='M8 16h5l2-6 3 12 2-6h4' stroke='%23ff5a1f' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+  </head>
+  <body class="try">
+    <header class="top">
+      <div class="brand">
+        <svg class="pulse" viewBox="0 0 64 24" aria-hidden="true"><path d="M0 12h16l4-9 6 18 5-14 3 5h30" /></svg>
+        <div>
+          <h1>Try <span>ShakeFix</span></h1>
+          <p class="sub">A live app with real bugs. Shake the phone when one bites you. AI agents take it from there.</p>
+          <p class="sub small">This page replays a real run (case #14: shake → fix → the reporter's 👍 in 26m 30s) at 10x, labelled <strong>DEMO REPLAY</strong>, so it works any time. Live agents run on our self-hosted GitLab runner; every step links to the real issue, merge request, pipeline and signed certificate.</p>
+        </div>
+      </div>
+      <div class="status">
+        <a class="mode-btn" id="board-link" href="./index.html?explain=1&amp;view=visual">Open the ER Board →</a>
+      </div>
+    </header>
+
+    <main class="try-layout">
+      <section class="stage" aria-label="Demo phone">
+        <div class="motion motion-l" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="device" id="device">
+          <div class="speaker" aria-hidden="true"></div>
+          <div class="screen">
+            <iframe id="app" title="CareRx demo app" allow="clipboard-write" referrerpolicy="no-referrer"></iframe>
+          </div>
+        </div>
+        <div class="motion motion-r" aria-hidden="true"><i></i><i></i><i></i></div>
+      </section>
+
+      <section class="guide" aria-label="How it works">
+        <ol class="steps">
+          <li>
+            <span class="num mono">1</span>
+            <div>
+              <h2>Use the app</h2>
+              <p>CareRx refills prescriptions for older patients. It has real bugs. Try one:</p>
+              <ul class="bugs" id="bugs"></ul>
+            </div>
+          </li>
+          <li>
+            <span class="num mono">2</span>
+            <div>
+              <h2>Shake the phone</h2>
+              <p>On a real phone you just shake it. Here, press the button.</p>
+              <button type="button" class="shake-btn" id="shake">📳 Shake the phone</button>
+              <p class="dim small" id="shake-note" aria-live="polite"></p>
+            </div>
+          </li>
+          <li>
+            <span class="num mono">3</span>
+            <div>
+              <h2>Say what went wrong, tap Send</h2>
+              <p>Your last steps, console errors and a screenshot go with it. Never what you typed.</p>
+            </div>
+          </li>
+          <li>
+            <span class="num mono">4</span>
+            <div>
+              <h2>Watch the ER</h2>
+              <p>A GitLab issue opens in seconds. Agents write a failing test, fix the bug, and Second Opinion checks
+                the fix changed nothing else. Then it ships, and the phone asks: <em>is it working for you now?</em></p>
+              <a class="link" href="./index.html?explain=1&amp;view=visual" id="board-link-2">Follow it on the ER Board →</a>
+            </div>
+          </li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="foot mono dim">
+      <span id="app-src"></span>
+      <span>MIT</span>
+    </footer>
+    <script type="module" src="./src/try.js"></script>
+  </body>
+</html>

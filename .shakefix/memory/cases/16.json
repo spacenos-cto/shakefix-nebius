@@ -1,0 +1,58 @@
+{
+  "schema": "shakefix.case/v1",
+  "iid": 16,
+  "rids": [
+    "r_20261012_c15719"
+  ],
+  "route": "/rx/:id",
+  "testids": [],
+  "symptom": {
+    "note": "My mother uses a screen reader. On the refill screen it reads nothing for the refill button and she can't reorder her heart medicine.",
+    "expectation": "",
+    "console_error": null
+  },
+  "root_cause": {
+    "file": "apps/carerx/src/views/rx.js",
+    "line": 11,
+    "summary": "the refill control was an unnamed, non-focusable div instead of a labelled button, so screen readers announced nothing.",
+    "pattern": "a11y-unnamed-control"
+  },
+  "fix": {
+    "files": [
+      "apps/carerx/src/views/rx.js",
+      "apps/carerx/src/styles.css"
+    ],
+    "lines_changed": 7,
+    "mr": 14,
+    "attempts": 2
+  },
+  "second_opinion": {
+    "intended": 0,
+    "unintended": 0,
+    "blocked_changes": []
+  },
+  "reporter_verdicts": {
+    "confirmed": 0,
+    "rejected": 0
+  },
+  "seen_before": null,
+  "lessons_applied": [],
+  "proposed_lessons": [
+    {
+      "source": "reoperation",
+      "text": "Never fix #16 by carrying unrelated server changes: the first branch was cut before #15 merged, so Second Opinion saw the privacy fix reverted (PATCH /me/privacy shareHealthData) and /rx/1/refill blank; rebase on main and change only rx.js and styles.css.",
+      "files": [
+        "apps/carerx/src/views/rx.js",
+        "apps/carerx/src/styles.css"
+      ]
+    }
+  ],
+  "time_to_fix_s": 879,
+  "timestamps": {
+    "reported_at": "2026-10-12T09:13:47.895Z",
+    "operated_at": "2026-10-12T09:28:26.440Z",
+    "merged_at": "2026-10-12T09:35:13.381Z",
+    "deployed_at": "2026-10-12T09:39:48.234Z",
+    "updated_at": "2026-10-12T09:39:48.234Z"
+  }
+}

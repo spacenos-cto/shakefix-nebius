@@ -1,0 +1,35 @@
+{
+  "name": "refill-and-pay",
+  "tags": [
+    "smoke"
+  ],
+  "expectFailUntilFixed": "C3",
+  "startRoute": "/rx/1",
+  "actions": [
+    {
+      "t": 0,
+      "type": "click",
+      "testid": "refill-btn",
+      "selector": "[data-testid=\"refill-btn\"]",
+      "route": "/rx/1"
+    },
+    {
+      "t": 300,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/rx/1/refill"
+    },
+    {
+      "t": 900,
+      "type": "click",
+      "testid": "pay-btn",
+      "selector": "[data-testid=\"pay-btn\"]",
+      "route": "/rx/1/refill"
+    }
+  ],
+  "expectation": {
+    "testid": "charged-total",
+    "state": "text",
+    "text": "$12.00"
+  }
+}

@@ -1,0 +1,10 @@
+# Copy to terraform.tfvars and edit. It holds no secrets (secret values go in with gcloud).
+project_id           = "shakefix-hack"
+region               = "asia-south1"
+gitlab_project_paths = ["nxt-spacenos-global/shakefix", "nxt-spacenos-global/shakefix-live"]
+gitlab_project_id    = "00000000"
+flow_service_account = "ai-shakefix-er-nxt-spacenos-global"
+allowed_origins      = "" # fill with the splitpal_url output after the first apply
+intake_secrets_ready = false
+billing_account_id   = "" # XXXXXX-XXXXXX-XXXXXX to enable the $20 budget alert
+budget_amount_usd    = 20

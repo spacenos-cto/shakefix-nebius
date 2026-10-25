@@ -1,0 +1,39 @@
+{
+  "id": "E9",
+  "kind": "bug",
+  "title": "Negative custom tip is accepted",
+  "class": "input-validation",
+  "evalBug": "E9",
+  "note": "I typed -10 by mistake and it took it, now everyone pays less",
+  "steps": {
+    "startRoute": "/",
+    "actions": [
+      {
+        "type": "click",
+        "testid": "bill-row-7",
+        "selector": "[data-testid=\"bill-row-7\"]"
+      },
+      {
+        "type": "input",
+        "testid": "tip-custom-input",
+        "selector": "[data-testid=\"tip-custom-input\"]",
+        "value": "-10"
+      },
+      {
+        "type": "click",
+        "testid": "tip-apply-btn",
+        "selector": "[data-testid=\"tip-apply-btn\"]"
+      }
+    ]
+  },
+  "expectation": {
+    "testid": "tip-error",
+    "state": "visible"
+  },
+  "fix": {
+    "files": [
+      "apps/splitpal/src/lib/tip.js"
+    ]
+  },
+  "gitlab": false
+}

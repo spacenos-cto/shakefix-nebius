@@ -1,0 +1,20 @@
+{
+  "id": "T2",
+  "kind": "trap",
+  "trap": "feature-request",
+  "title": "Trap: feature request (dark mode, PDF export)",
+  "evalBug": null,
+  "note": "Please add a dark mode toggle and an export to PDF button",
+  "steps": {
+    "startRoute": "/",
+    "actions": [
+      {
+        "type": "click",
+        "testid": "settings-link",
+        "selector": "[data-testid=\"settings-link\"]"
+      }
+    ]
+  },
+  "expectation": null,
+  "gitlab": true
+}

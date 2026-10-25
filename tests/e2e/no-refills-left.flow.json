@@ -1,0 +1,10 @@
+{
+  "name": "no-refills-left",
+  "tags": [],
+  "startRoute": "/rx/4",
+  "actions": [],
+  "expectation": {
+    "testid": "no-refills",
+    "state": "visible"
+  }
+}

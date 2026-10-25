@@ -1,0 +1,50 @@
+{
+  "id": "B1",
+  "kind": "bug",
+  "title": "Settle never completes: 1000 split 3 ways loses a cent",
+  "class": "money-rounding",
+  "evalBug": null,
+  "note": "settle button does nothing",
+  "steps": {
+    "startRoute": "/",
+    "actions": [
+      {
+        "type": "click",
+        "testid": "bill-row-7",
+        "selector": "[data-testid=\"bill-row-7\"]"
+      },
+      {
+        "type": "click",
+        "testid": "settle-btn",
+        "selector": "[data-testid=\"settle-btn\"]"
+      },
+      {
+        "type": "click",
+        "testid": "pay-Asha-btn",
+        "selector": "[data-testid=\"pay-Asha-btn\"]"
+      },
+      {
+        "type": "click",
+        "testid": "pay-Ben-btn",
+        "selector": "[data-testid=\"pay-Ben-btn\"]"
+      },
+      {
+        "type": "click",
+        "testid": "pay-Chen-btn",
+        "selector": "[data-testid=\"pay-Chen-btn\"]"
+      },
+      {
+        "type": "click",
+        "testid": "confirm-settle-btn",
+        "selector": "[data-testid=\"confirm-settle-btn\"]"
+      }
+    ]
+  },
+  "expectation": null,
+  "fix": {
+    "files": [
+      "apps/splitpal/src/lib/split.js"
+    ]
+  },
+  "gitlab": true
+}

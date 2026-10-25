@@ -1,0 +1,17 @@
+version: 1
+autonomy_default: hands-off          # hands-off | supervised | assisted
+rules:
+  - match: "apps/splitpal/src/auth/**"
+    autonomy: supervised             # MR opens; human must approve; no auto-merge
+    reason: "Authentication changes always need a human."
+  - match: "infra/**"
+    autonomy: assisted               # agents propose only; no commits
+  - match: "**/*.sql"
+    autonomy: supervised
+limits:
+  max_files_changed: 5
+  max_lines_changed: 60
+  forbid_new_dependencies: true
+proof:
+  block_on_unintended: true
+  max_reoperations: 1

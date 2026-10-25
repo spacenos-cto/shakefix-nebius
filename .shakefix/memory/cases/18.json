@@ -1,0 +1,51 @@
+{
+  "schema": "shakefix.case/v1",
+  "iid": 18,
+  "rids": [
+    "r_20261023_da6e62"
+  ],
+  "route": "/rx/:id",
+  "testids": [
+    "refill-btn",
+    "pay-btn"
+  ],
+  "symptom": {
+    "note": "Refills left went UP after I refilled. It said 2, now it says 3.",
+    "expectation": "",
+    "console_error": null
+  },
+  "root_cause": {
+    "file": "apps/carerx/server/index.js",
+    "line": 155,
+    "summary": "POST /prescriptions/:id/refills incremented refillsLeft instead of decrementing it.",
+    "pattern": "refill-counter-wrong-direction"
+  },
+  "fix": {
+    "files": [
+      "apps/carerx/server/index.js"
+    ],
+    "lines_changed": 4,
+    "mr": 26,
+    "attempts": 1
+  },
+  "second_opinion": {
+    "intended": 4,
+    "unintended": 0,
+    "blocked_changes": []
+  },
+  "reporter_verdicts": {
+    "confirmed": 0,
+    "rejected": 0
+  },
+  "seen_before": null,
+  "lessons_applied": [],
+  "proposed_lessons": [],
+  "time_to_fix_s": 308,
+  "timestamps": {
+    "reported_at": "2026-10-23T05:52:52.908Z",
+    "operated_at": "2026-10-23T05:58:00.848Z",
+    "merged_at": "2026-10-23T06:06:30.315Z",
+    "deployed_at": "2026-10-23T06:11:25.207Z",
+    "updated_at": "2026-10-23T06:11:25.207Z"
+  }
+}

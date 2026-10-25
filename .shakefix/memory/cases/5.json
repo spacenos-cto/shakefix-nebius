@@ -1,0 +1,50 @@
+{
+  "schema": "shakefix.case/v1",
+  "iid": 5,
+  "rids": [
+    "r_20261010_7c07ec"
+  ],
+  "route": "/bill/:id",
+  "testids": [
+    "bill-row-3",
+    "currency-select",
+    "bill-total"
+  ],
+  "symptom": {
+    "note": "switched to USD but total still shows rupees",
+    "expectation": "bill-total text \"$1,200.00\"",
+    "console_error": null
+  },
+  "root_cause": {
+    "file": null,
+    "line": null,
+    "summary": "",
+    "pattern": ""
+  },
+  "fix": {
+    "files": [],
+    "lines_changed": null,
+    "mr": null,
+    "attempts": null
+  },
+  "second_opinion": {
+    "intended": null,
+    "unintended": null,
+    "blocked_changes": []
+  },
+  "reporter_verdicts": {
+    "confirmed": 0,
+    "rejected": 0
+  },
+  "seen_before": null,
+  "lessons_applied": [],
+  "proposed_lessons": [],
+  "time_to_fix_s": 10652,
+  "timestamps": {
+    "reported_at": "2026-10-10T17:33:48.142Z",
+    "operated_at": null,
+    "merged_at": "2026-10-10T20:31:19.736Z",
+    "deployed_at": "2026-10-10T20:31:19.736Z",
+    "updated_at": "2026-10-10T20:31:19.736Z"
+  }
+}

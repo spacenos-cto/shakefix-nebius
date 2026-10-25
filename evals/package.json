@@ -1,0 +1,12 @@
+{
+  "name": "@shakefix/evals",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "ShakeFix graded eval: seeded SplitPal bugs and traps, reproduced through the real SDK and graded.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "eval": "node run.mjs --mode local"
+  }
+}

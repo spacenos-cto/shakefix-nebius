@@ -1,0 +1,29 @@
+{
+  "name": "@shakefix/proof",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Second Opinion: behavior-diff gate for ShakeFix (base vs head replay, labeled intended/unintended).",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "bin": { "proof": "bin/proof.js", "second-opinion": "bin/proof.js" },
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./src/*": "./src/*"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "proof": "node bin/proof.js"
+  },
+  "dependencies": {
+    "@shakefix/core": "workspace:*",
+    "@playwright/test": "1.58.2",
+    "minimatch": "10.0.1",
+    "pixelmatch": "6.0.0",
+    "pngjs": "7.0.0"
+  },
+  "devDependencies": {
+    "vitest": "2.1.4"
+  }
+}

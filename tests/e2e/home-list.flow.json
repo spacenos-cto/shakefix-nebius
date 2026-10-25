@@ -1,0 +1,12 @@
+{
+  "name": "home-list",
+  "tags": [
+    "smoke"
+  ],
+  "startRoute": "/",
+  "actions": [],
+  "expectation": {
+    "testid": "rx-row-1",
+    "state": "visible"
+  }
+}

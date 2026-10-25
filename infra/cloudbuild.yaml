@@ -1,0 +1,23 @@
+# Cloud Build recipe used by CI (build_image, deploy_intake).
+#   gcloud builds submit . --config infra/cloudbuild.yaml \
+#     --substitutions=_IMAGE=<ar image>,_DOCKERFILE=apps/splitpal/Dockerfile,_CONTEXT=.,_SA=<ci sa email>
+# The build runs as the CI service account (_SA), which already has artifactregistry.writer,
+# so no default Cloud Build service account permissions are needed. That requires
+# CLOUD_LOGGING_ONLY logging. Source upload is filtered by .gcloudignore.
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args: ["build", "-f", "${_DOCKERFILE}", "-t", "${_IMAGE}", "--build-arg", "APP_VERSION=${_VERSION}", "${_CONTEXT}"]
+images:
+  - "${_IMAGE}"
+substitutions:
+  _IMAGE: ""
+  _DOCKERFILE: apps/splitpal/Dockerfile
+  _CONTEXT: "."
+  _VERSION: dev
+  _SA: ""
+serviceAccount: "projects/${PROJECT_ID}/serviceAccounts/${_SA}"
+options:
+  logging: CLOUD_LOGGING_ONLY
+  dynamicSubstitutions: true
+timeout: 1200s

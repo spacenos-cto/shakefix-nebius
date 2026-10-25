@@ -1,0 +1,31 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261010_828654",
+  "app": {
+    "name": "splitpal",
+    "version": "b39c7ca7",
+    "baseUrl": "https://splitpal-pzd4uebegq-uc.a.run.app"
+  },
+  "device": {
+    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+    "viewport": [
+      390,
+      844
+    ],
+    "touch": true
+  },
+  "trigger": "bubble",
+  "note": "Dinner at Toit says 2 people on the home screen but we split it three ways.",
+  "startRoute": "/",
+  "actions": [],
+  "expectation": null,
+  "console": [],
+  "network": [
+    {
+      "method": "GET",
+      "path": "/api/bills",
+      "status": 200,
+      "ms": 288
+    }
+  ]
+}

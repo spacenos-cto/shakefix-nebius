@@ -1,0 +1,1 @@
+[{"id": "5", "iid": 5, "route": "/bill/:id", "files": ["apps/splitpal/src/lib/currency.js"], "rootCause": "SYMBOLS keyed upper-case but looked up with toLowerCase() in formatHeaderTotal; header also used Indian grouping for every currency", "pattern": "symbol-lookup-case-mismatch", "fixedAt": null, "mr": null}]

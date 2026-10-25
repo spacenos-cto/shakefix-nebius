@@ -1,0 +1,28 @@
+{
+  "name": "privacy-opt-out",
+  "tags": [],
+  "expectFailUntilFixed": "C2",
+  "startRoute": "/settings",
+  "actions": [
+    {
+      "t": 0,
+      "type": "change",
+      "testid": "privacy-share-toggle",
+      "selector": "[data-testid=\"privacy-share-toggle\"]",
+      "value": "false",
+      "route": "/settings"
+    },
+    {
+      "t": 800,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/settings",
+      "value": "/settings"
+    }
+  ],
+  "expectation": {
+    "testid": "privacy-status",
+    "state": "text",
+    "text": "not shared"
+  }
+}

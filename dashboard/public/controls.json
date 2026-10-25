@@ -1,0 +1,23 @@
+[
+  {
+    "mr": 10,
+    "kind": "planted-bad",
+    "title": "Removes the double charge and drops the cents from every price",
+    "expected": "block",
+    "actual": "block",
+    "fixConfidence": 0,
+    "changes": { "intended": 0, "unintended": 4 },
+    "at": "2026-10-12T09:10:23Z"
+  },
+  {
+    "mr": 11,
+    "kind": "harmless",
+    "title": "A code comment only",
+    "expected": "pass",
+    "actual": "pass",
+    "fixConfidence": 90,
+    "changes": { "intended": 0, "unintended": 0 },
+    "at": "2026-10-12T09:12:28Z",
+    "note": "First run (08:55Z) was a false BLOCK: the footer's version text differed between builds. Fixed by masking [data-shakefix-mask] regions (commit e411532), then rerun."
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "name": "@shakefix/intake",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "ShakeFix intake: receives shake reports, files GitLab issues, tracks state, notifies reporters.",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "fastify": "^5.1.0",
+    "zod": "^3.23.8"
+  },
+  "optionalDependencies": {
+    "@google-cloud/firestore": "^7.10.0",
+    "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "vitest": "2.1.4"
+  }
+}

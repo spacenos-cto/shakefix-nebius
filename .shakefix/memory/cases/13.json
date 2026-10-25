@@ -1,0 +1,51 @@
+{
+  "schema": "shakefix.case/v1",
+  "iid": 13,
+  "rids": [
+    "r_20261011_9aa746"
+  ],
+  "route": "/bill/:id",
+  "testids": [],
+  "symptom": {
+    "note": "There is no 20% tip option, it stops at 15%.",
+    "expectation": "",
+    "console_error": null
+  },
+  "root_cause": {
+    "file": "apps/splitpal/src/views/bill.js",
+    "line": 26,
+    "summary": "tip-select options were built from TIP_OPTIONS.slice(0, -1), dropping the 20% option.",
+    "pattern": "dropped-last-option"
+  },
+  "fix": {
+    "files": [
+      "apps/splitpal/src/views/bill.js"
+    ],
+    "lines_changed": 2,
+    "mr": 9,
+    "attempts": 1
+  },
+  "second_opinion": {
+    "intended": 0,
+    "unintended": 0,
+    "blocked_changes": []
+  },
+  "reporter_verdicts": {
+    "confirmed": 0,
+    "rejected": 0
+  },
+  "seen_before": 6,
+  "lessons_applied": [
+    "L1",
+    "L2"
+  ],
+  "proposed_lessons": [],
+  "time_to_fix_s": 132,
+  "timestamps": {
+    "reported_at": "2026-10-11T16:49:33.803Z",
+    "operated_at": "2026-10-11T16:51:45.597Z",
+    "merged_at": "2026-10-11T17:12:06.621Z",
+    "deployed_at": "2026-10-11T17:38:23.900Z",
+    "updated_at": "2026-10-11T17:38:23.900Z"
+  }
+}

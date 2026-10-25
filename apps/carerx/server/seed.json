@@ -1,0 +1,23 @@
+{
+  "patient": { "id": "p1", "firstName": "Margaret", "lastName": "Ellis", "pharmacy": "Elm Street Pharmacy" },
+  "privacy": { "shareHealthData": true },
+  "card": { "brand": "Visa", "last4": "4242" },
+  "prescriptions": [
+    { "id": 1, "drug": "Metoprolol succinate", "strength": 25, "unit": "mg", "form": "tablet", "purpose": "Heart rhythm", "directions": "Take 1 tablet by mouth once daily.", "refillsLeft": 2, "copay": 12.0, "daysSupply": 30, "lastFilled": "2026-09-12T15:00:00.000Z" },
+    { "id": 2, "drug": "Levothyroxine sodium", "strength": 50, "unit": "mcg", "form": "tablet", "purpose": "Thyroid", "directions": "Take 1 tablet every morning on an empty stomach.", "refillsLeft": 5, "copay": 8.0, "daysSupply": 30, "lastFilled": "2026-09-20T15:00:00.000Z" },
+    { "id": 3, "drug": "Atorvastatin", "strength": 20, "unit": "mg", "form": "tablet", "purpose": "Cholesterol", "directions": "Take 1 tablet at bedtime.", "refillsLeft": 1, "copay": 10.0, "daysSupply": 30, "lastFilled": "2026-09-25T15:00:00.000Z" },
+    { "id": 4, "drug": "Lisinopril", "strength": 10, "unit": "mg", "form": "tablet", "purpose": "Blood pressure", "directions": "Take 1 tablet by mouth once daily.", "refillsLeft": 0, "copay": 6.0, "daysSupply": 30, "lastFilled": "2026-09-14T15:00:00.000Z" }
+  ],
+  "orders": [],
+  "charges": [],
+  "population": {
+    "note": "SYNTHETIC demo population. CareRx is a demo app; these are not real patients. Used only to show how ShakeFix sizes a bug's blast radius.",
+    "size": 1284,
+    "windowDays": 30,
+    "routes": { "/": 1284, "/rx/:id": 1191, "/rx/:id/refill": 902, "/orders/:id": 902, "/orders": 377, "/settings": 344 },
+    "components": { "rx-row": 1191, "refill-btn": 902, "pay-btn": 902, "privacy-share-toggle": 211, "rx-strength": 1191 },
+    "segments": { "screen-reader": 71, "levothyroxine": 298 },
+    "refills": 902,
+    "avgCopay": 9.4
+  }
+}

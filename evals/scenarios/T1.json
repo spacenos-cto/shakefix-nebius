@@ -1,0 +1,50 @@
+{
+  "id": "T1",
+  "kind": "trap",
+  "trap": "not-reproducible",
+  "title": "Trap: settle works fine on the groceries bill",
+  "evalBug": null,
+  "note": "settle doesn't work on the groceries bill",
+  "steps": {
+    "startRoute": "/",
+    "actions": [
+      {
+        "type": "click",
+        "testid": "bill-row-3",
+        "selector": "[data-testid=\"bill-row-3\"]"
+      },
+      {
+        "type": "click",
+        "testid": "settle-btn",
+        "selector": "[data-testid=\"settle-btn\"]"
+      },
+      {
+        "type": "click",
+        "testid": "pay-Asha-btn",
+        "selector": "[data-testid=\"pay-Asha-btn\"]"
+      },
+      {
+        "type": "click",
+        "testid": "pay-Ben-btn",
+        "selector": "[data-testid=\"pay-Ben-btn\"]"
+      },
+      {
+        "type": "click",
+        "testid": "pay-Chen-btn",
+        "selector": "[data-testid=\"pay-Chen-btn\"]"
+      },
+      {
+        "type": "click",
+        "testid": "pay-Dev-btn",
+        "selector": "[data-testid=\"pay-Dev-btn\"]"
+      },
+      {
+        "type": "click",
+        "testid": "confirm-settle-btn",
+        "selector": "[data-testid=\"confirm-settle-btn\"]"
+      }
+    ]
+  },
+  "expectation": null,
+  "gitlab": true
+}

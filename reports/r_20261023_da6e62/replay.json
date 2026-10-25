@@ -1,0 +1,70 @@
+{
+  "schema": "shakefix.replay/v1",
+  "rid": "r_20261023_da6e62",
+  "app": {
+    "name": "carerx",
+    "version": "8790c485",
+    "baseUrl": "https://carerx-pzd4uebegq-uc.a.run.app"
+  },
+  "device": {
+    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36",
+    "viewport": [
+      390,
+      844
+    ],
+    "touch": true
+  },
+  "trigger": "shake",
+  "note": "Refills left went UP after I refilled. It said 2, now it says 3.",
+  "startRoute": "/rx/1",
+  "actions": [
+    {
+      "t": 0,
+      "type": "click",
+      "testid": "refill-btn",
+      "selector": "[data-testid=\"refill-btn\"]",
+      "route": "/rx/1"
+    },
+    {
+      "t": 1,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/rx/1/refill"
+    },
+    {
+      "t": 1860,
+      "type": "click",
+      "testid": "pay-btn",
+      "selector": "[data-testid=\"pay-btn\"]",
+      "route": "/rx/1/refill"
+    },
+    {
+      "t": 1863,
+      "type": "submit",
+      "selector": "#app > form",
+      "route": "/rx/1/refill"
+    },
+    {
+      "t": 2225,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/orders/1001"
+    },
+    {
+      "t": 4748,
+      "type": "navigate",
+      "selector": "window",
+      "route": "/rx/1"
+    }
+  ],
+  "expectation": null,
+  "console": [],
+  "network": [
+    {
+      "method": "GET",
+      "path": "/api/prescriptions/1",
+      "status": 200,
+      "ms": 347
+    }
+  ]
+}
