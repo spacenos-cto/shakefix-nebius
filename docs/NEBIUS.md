@@ -51,21 +51,39 @@ parsing, `response_format`), `packages/proof/test/label.test.js` (`stripThink`),
 
 ## Run the live call yourself
 
-You need a Nebius Token Factory API key (free tier is enough for the Second Opinion call).
+You need a Nebius Token Factory API key (the free trial is enough — the verified run below cost
+effectively nothing).
 
 ```bash
 corepack pnpm install
 export MODEL_PROVIDER=openai-compatible
 export MODEL_BASE_URL=https://api.tokenfactory.nebius.com/v1
-export MODEL_API_KEY=<your Token Factory key>     # never committed; keep it in your shell
-node scripts/nebius/second-opinion.mjs --list-models          # find the Nemotron id your key serves
-export MODEL_NAME=nvidia/Nemotron-3-Ultra-550b-a55b           # one id from the list above
-export PROOF_RESPONSE_FORMAT=json_schema                       # optional
+export MODEL_API_KEY=<your Token Factory key>     # never committed; keep it in your shell / .env.nebius
+node scripts/nebius/second-opinion.mjs --list-models          # see the Nemotron ids your key serves
+export MODEL_NAME=nvidia/Nemotron-3-Ultra-550b-a55b           # reasoning model, verified below
+export PROOF_MAX_TOKENS=8000                                   # room for Nemotron's <think> + the JSON
 node scripts/nebius/second-opinion.mjs                         # one live Nemotron verdict on a real case
 ```
 
-Expected: the double-charge fixture (SplitPal) shows the untouched bill's cent change labeled
-**unintended** and the reported-bug changes **intended**, ending with `✓ labeled by Nemotron on Nebius`.
+### Verified live (Oct 25 2026)
+
+Nemotron models the key served: `nvidia/Nemotron-3-Ultra-550b-a55b`,
+`nvidia/nemotron-3-super-120b-a12b`, `nvidia/Nemotron-3_5-Lightning`, `nvidia/Nemotron-3.5-Super-VL`,
+`nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`.
+
+On the double-charge fixture (SplitPal), `nvidia/Nemotron-3-Ultra-550b-a55b` returned a live verdict in
+~5.1 s: **9 intended, 1 unintended**. It kept the untouched bill's cent change **unintended**
+("Bill 9 not in replay; unrelated side effect") and wrote its own one-line reason for each fix change —
+so the merge gate holds for a human exactly when it should.
+
+Two things the run established, now baked into the config:
+
+- **Token budget.** Nemotron-Ultra reasons before answering; with the original 1500-token cap the reply
+  was cut off and the labeler fell back to rules. `PROOF_MAX_TOKENS=8000` fixes it.
+- **Structured output.** `PROOF_RESPONSE_FORMAT=json_schema` returns **HTTP 422** on Nemotron-Ultra, so
+  leave it off: the labeler strips `<think>` and extracts the JSON anyway. (Non-reasoning models such as
+  `openai/gpt-oss-120b` do accept json_schema.)
+
 Full setup for the agent roles and CI: [`docs/PROVIDERS.md`](PROVIDERS.md).
 
 ## Video (≥ 1 minute of the key modules running)

@@ -125,4 +125,6 @@ async function main() {
   return 1; // the whole point is a live Nemotron call — a fallback is a failure here
 }
 
-main().then((code) => process.exit(code), (err) => { console.error(`${C.red}error:${C.reset} ${err?.message || err}`); process.exit(3); });
+// Set exitCode and let the event loop drain (don't force process.exit, which can trip a libuv
+// handle-close assertion on Windows while the request's abort timer is still live).
+main().then((code) => { process.exitCode = code; }, (err) => { console.error(`${C.red}error:${C.reset} ${err?.message || err}`); process.exitCode = 3; });

@@ -21,10 +21,8 @@ node scripts/nebius/second-opinion.mjs --list-models
 
 # 2. pick one and run a live verdict on the built-in real fixture
 export MODEL_NAME=nvidia/Nemotron-3-Ultra-550b-a55b
+export PROOF_MAX_TOKENS=8000     # Nemotron reasons before answering; without headroom the reply is cut off
 node scripts/nebius/second-opinion.mjs
-
-# optional: constrain Nemotron's output to the labels JSON schema
-export PROOF_RESPONSE_FORMAT=json_schema
 
 # run it on any captured case instead of the fixture
 node scripts/nebius/second-opinion.mjs --proof reports/<rid>/proof.json --issue reports/<rid>/issue.md
@@ -41,7 +39,8 @@ check the model id and key) · `2` no model configured · `3` error.
 | `MODEL_BASE_URL` | `https://api.tokenfactory.nebius.com/v1` (regional/dedicated: `https://api.tokenfactory.<region>.nebius.com/v1`) |
 | `MODEL_NAME` | a Nemotron id from `--list-models`, e.g. `nvidia/Nemotron-3-Ultra-550b-a55b` |
 | `MODEL_API_KEY` | your Nebius Token Factory key |
-| `PROOF_RESPONSE_FORMAT` | `json_schema`, `json_object`, or unset (tolerant parse) |
+| `PROOF_MAX_TOKENS` | output budget; `8000` for Nemotron-Ultra (reasoning). Default 1500 |
+| `PROOF_RESPONSE_FORMAT` | `json_object` or unset (tolerant parse). `json_schema` returns HTTP 422 on Nemotron-Ultra — use it only with a JSON-mode model like `openai/gpt-oss-120b` |
 | `MODEL_TIMEOUT_MS` | optional, default 60000 |
 
 The API key lives only in your shell / CI secrets. Do not commit it; `.env.nebius.example` has no real key.

@@ -46,6 +46,15 @@ export function labelResponseFormatFromEnv(env = process.env) {
   return undefined;
 }
 
+// Max output tokens for the verdict. Default 1500 (the original request, unchanged). Reasoning
+// models (Nemotron) spend tokens on a <think> block before the JSON, so set PROOF_MAX_TOKENS higher
+// for them (the Nebius config uses 8000) or the reply is cut off and the labeler drops to rules.
+export const DEFAULT_MAX_TOKENS = 1500;
+export function labelMaxTokensFromEnv(env = process.env) {
+  const n = Number(env.PROOF_MAX_TOKENS);
+  return Number.isFinite(n) && n > 0 ? n : DEFAULT_MAX_TOKENS;
+}
+
 const RID_RE = /shakefix:rid=([A-Za-z0-9_-]+)/;
 
 /** Extract the rid marker from an issue description. */
@@ -359,7 +368,7 @@ export function labelerModelFromEnv(env = process.env, { fetchImpl } = {}) {
  * Full labeling pipeline. Never throws for LLM problems: falls back to rule labels.
  * Returns { proof, labeler: 'llm'|'rules', error?: string }.
  */
-export async function labelProof(proof, { issueText = '', replays = [], apiKey, model, fetchImpl, baseUrl, llm, responseFormat } = {}) {
+export async function labelProof(proof, { issueText = '', replays = [], apiKey, model, fetchImpl, baseUrl, llm, responseFormat, maxTokens } = {}) {
   const touch = buildTouchContext({ proof, replays, issueText });
   const ruled = applyRules(proof, touch);
   const total = ruled.summary.changes;
@@ -373,7 +382,8 @@ export async function labelProof(proof, { issueText = '', replays = [], apiKey, 
     const { system, user, ids } = buildPrompt(ruled, { issueText, touch });
     // response_format steers OpenAI-compatible models (Nemotron) toward clean JSON; Anthropic ignores it.
     const rf = responseFormat ?? labelResponseFormatFromEnv();
-    const text = await provider.complete({ system, user, maxTokens: 1500, temperature: 0, responseFormat: rf });
+    const mt = maxTokens || labelMaxTokensFromEnv();
+    const text = await provider.complete({ system, user, maxTokens: mt, temperature: 0, responseFormat: rf });
     const labels = parseLlmOutput(text, ids);
     return { proof: applyLlmLabels(ruled, labels), labeler: 'llm', touch };
   } catch (err) {

@@ -69,6 +69,17 @@ describe('labeler model from env (default path unchanged)', () => {
     expect(rf.type).toBe('json_schema');
     expect(rf.json_schema.properties.labels.items.properties.label.enum).toEqual(['intended', 'unintended']);
   });
+
+  it('maxTokens is forwarded (reasoning models need headroom for <think> + JSON)', async () => {
+    const fetchImpl = vi.fn(async (_url, init) => {
+      const user = JSON.parse(init.body).messages[1].content;
+      const ids = JSON.parse(user.split('## Changes\n')[1]).map((c) => c.id);
+      return okResponse({ choices: [{ message: { content: JSON.stringify({ labels: ids.map((id) => ({ id, label: 'intended', reason: 'r' })) }) }, finish_reason: 'stop' }] });
+    });
+    const llm = labelerModelFromEnv({ MODEL_PROVIDER: 'openai-compatible', MODEL_BASE_URL: 'https://api.tokenfactory.nebius.com/v1', MODEL_NAME: 'nvidia/nemotron', MODEL_API_KEY: 'nb' }, { fetchImpl });
+    await labelProof(b1Proof(), { issueText: issue, replays: [replay], llm, maxTokens: 8000 });
+    expect(JSON.parse(fetchImpl.mock.calls[0][1].body).max_tokens).toBe(8000);
+  });
 });
 
 describe('Second Opinion SCM from env', () => {

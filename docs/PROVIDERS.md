@@ -122,7 +122,8 @@ MODEL_PROVIDER=openai-compatible        # vars.MODEL_PROVIDER
 MODEL_BASE_URL=https://api.tokenfactory.nebius.com/v1   # vars.MODEL_BASE_URL  (Nebius Token Factory; dedicated/regional endpoints use api.tokenfactory.<region>.nebius.com/v1)
 MODEL_NAME=nvidia/Nemotron-3-Ultra-550b-a55b            # vars.MODEL_NAME      (reasoning; fast calls: nvidia/nemotron-3-super-120b-a12b or nvidia/Nemotron-3_5-Lightning — confirm the live id with `--list-models`)
 MODEL_API_KEY=<nebius token factory key>  # secrets.MODEL_API_KEY
-PROOF_RESPONSE_FORMAT=json_schema       # optional: ask Nemotron for schema-valid JSON (see scripts/nebius/README.md)
+PROOF_MAX_TOKENS=8000                    # vars.PROOF_MAX_TOKENS: room for Nemotron's <think> + JSON
+# PROOF_RESPONSE_FORMAT=json_schema      # leave OFF for Nemotron-Ultra (HTTP 422); the parser handles <think>
 SHAKEFIX_GH_TOKEN=<fine-grained PAT>    # secrets.SHAKEFIX_GH_TOKEN
 SHAKEFIX_MAX_TOOL_CALLS=40              # vars.SHAKEFIX_MAX_TOOL_CALLS (optional)
 # try just the Second Opinion labeler live (one Nemotron call, no writes):
@@ -131,10 +132,12 @@ SHAKEFIX_MAX_TOOL_CALLS=40              # vars.SHAKEFIX_MAX_TOOL_CALLS (optional
 #   SCM_PROVIDER=github GITHUB_REPO=<owner>/<repo> GITHUB_TOKEN=... node packages/core/bin/shakefix-agent.js --issue 1 --dry-run
 ```
 
-> **Nemotron is a reasoning model.** It emits a `<think>…</think>` block before its answer. The Second
-> Opinion labeler (`packages/proof/src/label.js`) strips that block and pulls the JSON out of the rest,
-> so Nemotron's reasoning never breaks the verdict. `PROOF_RESPONSE_FORMAT=json_schema` additionally asks
-> Token Factory to constrain the output to the labels schema. See [`docs/NEBIUS.md`](NEBIUS.md).
+> **Nemotron is a reasoning model.** It emits a `<think>…</think>` block before its answer, so give it
+> output headroom (`PROOF_MAX_TOKENS=8000`) or the reply is truncated. The Second Opinion labeler
+> (`packages/proof/src/label.js`) strips the think block and pulls the JSON out of the rest, so the
+> reasoning never breaks the verdict. `PROOF_RESPONSE_FORMAT=json_schema` returns HTTP 422 on
+> Nemotron-Ultra — leave it off there (non-reasoning models like `openai/gpt-oss-120b` accept it).
+> Verified live Oct 25 2026; details in [`docs/NEBIUS.md`](NEBIUS.md).
 
 ### 2. Vultr port (GitHub + local runner + Vultr Serverless Inference)
 
