@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ShakeFix Second Opinion · live on Nemotron</title>
+<meta name="description" content="Run ShakeFix's Second Opinion live: NVIDIA Nemotron on Nebius Token Factory decides which changes an AI-written fix made on purpose and which are side effects." />
+<style>
+  :root {
+    --bg: #0b0d10; --panel: #13161b; --panel2: #191d23; --line: #262b33; --text: #e9ecf1; --dim: #9aa3ae;
+    --accent: #ff5a2c; --ok: #3ccf7a; --bad: #ff4d5e; --warn: #f2b84b; --nv: #76b900;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 28px 16px 64px; }
+  .mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+  header h1 { margin: 0; font-size: 30px; letter-spacing: -0.02em; }
+  header h1 span { color: var(--accent); }
+  .sub { color: var(--dim); margin: 6px 0 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .chip { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 3px 12px; font-size: 13px; color: var(--dim); }
+  .chip b { color: var(--nv); font-weight: 600; }
+  .grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; margin-top: 24px; }
+  @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .card h2 { margin: 0 0 10px; font-size: 18px; }
+  .card p { margin: 0 0 10px; color: var(--dim); }
+  .card p strong { color: var(--text); }
+  .quote { border-left: 3px solid var(--accent); padding: 4px 0 4px 12px; margin: 12px 0; color: var(--text); font-style: italic; }
+  button.run { width: 100%; border: 0; border-radius: 12px; padding: 16px; font-size: 18px; font-weight: 700; color: #fff; background: var(--accent); cursor: pointer; }
+  button.run:disabled { background: #4a2a20; color: #c9a99e; cursor: not-allowed; }
+  .meter { display: flex; justify-content: space-between; color: var(--dim); font-size: 14px; margin: 12px 0 0; }
+  .bar { height: 6px; background: var(--panel2); border-radius: 99px; overflow: hidden; margin-top: 6px; }
+  .bar i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .4s; }
+  .status { margin-top: 14px; min-height: 24px; font-size: 15px; }
+  .status.err { color: var(--warn); }
+  .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: s .8s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes s { to { transform: rotate(360deg); } }
+  .result { margin-top: 24px; }
+  .rhead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .rhead h2 { margin: 0; font-size: 20px; }
+  .stamp { font-size: 14px; color: var(--dim); }
+  .stamp .ok { color: var(--ok); font-weight: 600; }
+  .verdict { margin: 14px 0; padding: 14px 16px; border-radius: 12px; background: var(--panel2); border: 1px solid var(--line); font-size: 16px; }
+  .verdict b.bad { color: var(--bad); }
+  .verdict b.ok { color: var(--ok); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; color: var(--dim); font-weight: 500; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr.flag td { background: rgba(255, 77, 94, .07); }
+  .where { font-weight: 600; word-break: break-word; }
+  .chg { color: var(--dim); word-break: break-word; }
+  .chg .arrow { color: var(--accent); }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .tag.intended { background: rgba(60, 207, 122, .14); color: var(--ok); }
+  .tag.unintended { background: rgba(255, 77, 94, .16); color: var(--bad); }
+  .reason { color: var(--dim); }
+  .tablewrap { overflow-x: auto; }
+  @media (max-width: 640px) { th:nth-child(2), td:nth-child(2) { display: none; } }
+  footer { margin-top: 32px; color: var(--dim); font-size: 14px; display: flex; flex-wrap: wrap; gap: 18px; }
+  footer a, .card a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Shake<span>Fix</span> Second Opinion · live</h1>
+    <p class="sub">The fix is AI-written code too. Before it can merge itself, a second AI checks it changed only what the bug report asked for.</p>
+    <div class="chips">
+      <span class="chip">Model: <b id="model">NVIDIA Nemotron</b></span>
+      <span class="chip">Served by <b>Nebius Token Factory</b></span>
+      <span class="chip">One real <span class="mono">/chat/completions</span> call per click</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="card">
+      <h2>The case</h2>
+      <p>A user of SplitPal, a bill-splitting app, couldn't settle a ₹1,000 bill three ways. She shook her phone and said:</p>
+      <div class="quote">"settle button does nothing"</div>
+      <p>ShakeFix's agents found the cause, a rounding error (3 × ₹333.33 ≠ ₹1,000), and wrote a fix. Replaying her real taps on the old and the fixed app gives <strong>10 behaviour changes</strong> across screens, API responses and database writes.</p>
+      <p>Nine of them are the fix. One is not: the new rounding also changed the <strong>tip total on a different bill (#9) that she never opened</strong>, from ₹49.99 to ₹50.00. A diff reviewer skims past that. Second Opinion must catch it, or the fix ships a new bug.</p>
+      <p>Rules label every change first. Nemotron then reasons over the bug report and the replay, and <strong>can only make a verdict stricter</strong>, never clear a side effect.</p>
+    </section>
+
+    <section class="card">
+      <h2>Run it live</h2>
+      <p>Click once. The server sends the case to Nemotron on Nebius and shows its verdict. It usually takes 5–30 seconds, because Nemotron reasons before it answers.</p>
+      <button class="run" id="run" type="button">Run Second Opinion on Nemotron</button>
+      <div class="meter"><span id="left">Checking live calls left…</span><span id="used"></span></div>
+      <div class="bar"><i id="bar"></i></div>
+      <div class="status" id="status" aria-live="polite"></div>
+    </section>
+  </div>
+
+  <section class="card result" id="result" hidden>
+    <div class="rhead">
+      <h2 id="rtitle">Verdict</h2>
+      <span class="stamp" id="stamp"></span>
+    </div>
+    <div class="verdict" id="verdict"></div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Where</th><th>What changed</th><th>Label</th><th>Why</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <a href="https://github.com/spacenos-cto/shakefix-nebius" target="_blank" rel="noopener">Source (MIT)</a>
+    <a href="https://github.com/spacenos-cto/shakefix-nebius/tree/main/apps/nemotron-live" target="_blank" rel="noopener">This page's code</a>
+    <a href="https://shakefix-bdb22c.gitlab.io/try.html" target="_blank" rel="noopener">Try the full app: shake → fix → ship</a>
+    <span>Live calls are capped to keep the demo inside its budget.</span>
+  </footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = (v) => (typeof v === 'string' ? v : JSON.stringify(v));
+let cap = 30;
+
+function meter(remaining) {
+  const used = cap - remaining;
+  $('left').textContent = remaining > 0 ? `${remaining} of ${cap} live calls left` : `All ${cap} live calls used`;
+  $('bar').style.width = `${Math.round((used / cap) * 100)}%`;
+  $('run').disabled = remaining <= 0;
+  if (remaining <= 0) $('run').textContent = 'Live budget used: showing the latest live result';
+}
+
+function render(r, mode) {
+  $('result').hidden = false;
+  const live = mode !== 'rules';
+  $('rtitle').textContent = live ? "Nemotron's verdict" : 'Rules only (before Nemotron)';
+  const when = r.at ? new Date(r.at).toLocaleString() : '';
+  $('stamp').innerHTML = live
+    ? (r.labeler === 'llm'
+      ? `<span class="ok">✓ labeled by Nemotron on Nebius</span> · <span class="mono">${esc(r.model)}</span> · ${r.ms} ms${when ? ' · ' + esc(when) : ''}${mode === 'cached' ? ' · latest live run' : ''}`
+      : `Nemotron did not answer (${esc(r.error || 'error')}), so the rules decided`)
+    : 'Deterministic rules. Click Run to get Nemotron\'s reasoning.';
+  const s = r.summary;
+  $('verdict').innerHTML = s.unintended > 0
+    ? `${s.changes} changes · ${s.intended} intended · <b class="bad">${s.unintended} unintended</b> → the fix is <b class="bad">held for a human</b>. It does not merge itself.`
+    : `${s.changes} changes · <b class="ok">all intended</b> → the fix may merge itself.`;
+  const rows = [...r.changes].sort((a, b) => (a.label === 'unintended' ? -1 : 0) - (b.label === 'unintended' ? -1 : 0));
+  $('rows').innerHTML = rows.map((c) => `
+    <tr class="${c.label === 'unintended' ? 'flag' : ''}">
+      <td class="where mono">${esc(c.where)}</td>
+      <td class="chg mono">${esc(c.channel)}: ${esc(fmt(c.before))} <span class="arrow">→</span> ${esc(fmt(c.after))}</td>
+      <td><span class="tag ${esc(c.label)}">${esc(c.label)}</span></td>
+      <td class="reason">${esc(c.reason || '')}</td>
+    </tr>`).join('');
+}
+
+async function load() {
+  try {
+    const st = await (await fetch('/api/status')).json();
+    cap = st.cap;
+    if (st.model) $('model').textContent = st.model;
+    meter(st.remaining);
+    if (st.last) render(st.last, 'cached');
+    else render(st.rules, 'rules');
+  } catch {
+    $('left').textContent = 'Could not reach the server.';
+  }
+}
+
+$('run').addEventListener('click', async () => {
+  $('run').disabled = true;
+  const t0 = Date.now();
+  $('status').className = 'status';
+  const tick = setInterval(() => {
+    $('status').innerHTML = `<span class="spin"></span>Nemotron is reasoning… ${((Date.now() - t0) / 1000).toFixed(1)}s`;
+  }, 100);
+  try {
+    const res = await fetch('/api/run', { method: 'POST' });
+    const body = await res.json();
+    clearInterval(tick);
+    if (res.ok) {
+      $('status').textContent = body.labeler === 'llm' ? `Done: a live answer from Nemotron in ${(body.ms / 1000).toFixed(1)}s.` : 'Nemotron did not answer this time, so the rules decided.';
+      render(body, 'live');
+      meter(body.remaining);
+    } else {
+      $('status').className = 'status err';
+      $('status').textContent = body.error || `Error ${res.status}`;
+      if (body.last) render(body.last, 'cached');
+      if (body.capped) meter(0);
+      else $('run').disabled = false;
+    }
+  } catch {
+    clearInterval(tick);
+    $('status').className = 'status err';
+    $('status').textContent = 'Network error. Try again.';
+    $('run').disabled = false;
+  }
+});
+
+load();
+</script>
+</body>
+</html>
